@@ -99,8 +99,7 @@
     <header class="topbar">
       <h1>◆ Malvagos <b>System</b></h1>
       <div class="meta">
-        <span id="kasse" style="font-weight:700"></span>
-        <span id="stats"></span>
+        <span><span id="stats"></span><span id="kasse" style="font-weight:700"></span></span>
         <span id="who"></span>
         <button id="logout" class="ghost" type="button">Log ud</button>
       </div>
@@ -198,9 +197,9 @@
         kasse.opening = Number(o.data?.opening || 0);
         const entries = await allEntries();
         kasse.flow = entries.reduce((s, e) => s + (e.type === "ind" ? 1 : -1) * Number(e.amount || 0), 0);
-      } catch (err) { return; }
+      } catch (err) { $("#kasse").textContent = " · klubkasse –"; return; }
       const bal = kasse.opening + kasse.flow;
-      $("#kasse").textContent = "Klubkasse: " + money(bal);
+      $("#kasse").textContent = " · klubkasse " + money(bal);
       $("#kasse").style.color = bal < 0 ? "#b42318" : "#1a7f37";
       const big = byId("kassebig");
       if (big) { big.textContent = money(bal); big.style.color = bal < 0 ? "#b42318" : "#1a7f37"; }
