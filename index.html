@@ -6,12 +6,13 @@
   <title>Malvagos</title>
   <style>
     * { box-sizing: border-box; }
-    body { min-height: 100vh; margin: 0; background: #f6f4ef; color: #172033; font: 14px Arial, sans-serif; }
-    input, button, select { font: inherit; padding: 9px 11px; border: 1px solid #e5e2dc; border-radius: 7px; background: #fff; color: inherit; }
-    button { cursor: pointer; background: #b8860b; color: #fff; border: 0; }
-    button.ghost { background: #fff; color: #172033; border: 1px solid #e5e2dc; }
-    button.danger { background: #fff; color: #b42318; border: 1px solid #e5e2dc; }
-    button.sm { padding: 3px 9px; }
+    body { min-height: 100vh; margin: 0; background: #f7f6f2; color: #172033; font: 15px Arial, sans-serif; }
+    input, button, select { font: inherit; padding: 8px 11px; border: 1px solid #e5e2dc; border-radius: 7px; background: #fff; color: inherit; }
+    input:disabled { background: #faf9f6; color: #8a93a3; }
+    button { cursor: pointer; background: #b8860b; color: #fff; border: 0; font-weight: 600; }
+    button.ghost { background: #fff; color: #172033; border: 1px solid #e5e2dc; font-weight: 400; }
+    button.danger { background: #fff; color: #b42318; border: 1px solid #e5e2dc; font-weight: 400; }
+    button.sm { padding: 2px 9px; }
 
     #auth { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
     .login-box { width: min(100%, 300px); padding: 14px; background: #fff; border: 1px solid #e8e5df; border-radius: 9px; }
@@ -23,39 +24,51 @@
     #login button { width: 100%; margin-top: 4px; }
     .login-box small { display: block; margin-top: 10px; color: #777; font-size: 10px; }
 
-    .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e8e5df; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 16px; border-bottom: 1px solid #e8e5df; }
     .topbar h1 { margin: 0; font-size: 19px; color: #b8860b; }
     .topbar h1 b { color: #172033; }
-    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-    .app-shell { padding: 16px 16px 40px; }
-    nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    nav button { background: #fff; color: #172033; border: 1px solid #e5e2dc; }
-    nav button.active { background: #b8860b; color: #fff; border-color: #b8860b; }
+    .meta { display: flex; align-items: center; gap: 12px; color: #667085; font-size: 13px; }
+    .app-shell { padding: 0 16px 40px; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; }
+    nav button { background: #fff; color: #172033; border: 1px solid #e5e2dc; font-weight: 400; }
+    nav button.active { background: #b8860b; color: #fff; border-color: #b8860b; font-weight: 600; }
     #content { max-width: 970px; margin: 0 auto; }
 
     .card { overflow-x: auto; margin: 0 0 14px; padding: 14px; background: #fff; border: 1px solid #ece9e3; border-radius: 10px; }
     .card h2 { margin: 0 0 10px; font-size: 15px; }
-    .card input, .card select { margin: 4px; }
-    .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .seg button { padding: 12px; background: #fff; color: #172033; border: 1px solid #e5e2dc; }
-    .seg button.on { background: #b8860b; color: #fff; border-color: #b8860b; }
-    .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-    .chip { background: #fff; color: #172033; border: 1px solid #e5e2dc; white-space: nowrap; }
-    .chip.on { background: #b8860b; color: #fff; border-color: #b8860b; }
-    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; max-height: 300px; overflow: auto; }
-    .tile { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 9px 11px; text-align: left; background: #fff; color: #172033; border: 1px solid #e5e2dc; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .seg button { padding: 11px; background: #fff; color: #172033; border: 1px solid #e5e2dc; font-weight: 400; }
+    .seg button.on { background: #b8860b; color: #fff; border-color: #b8860b; font-weight: 600; }
+    .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
+    .chip { background: #fff; color: #172033; border: 1px solid #e5e2dc; white-space: nowrap; font-weight: 400; }
+    .chip.on { background: #b8860b; color: #fff; border-color: #b8860b; font-weight: 600; }
+    .search { width: 100%; margin-bottom: 10px; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; max-height: 270px; overflow: auto; padding-right: 4px; }
+    .tile { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 10px; text-align: left; background: #fff; color: #172033; border: 1px solid #e5e2dc; border-radius: 6px; font-weight: 400; }
     .tile span { font-size: 12px; color: #667085; }
-    .tile.empty { opacity: .5; }
-    .total { display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 2px solid #b8860b; font-size: 16px; }
+
+    .sumline { display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 2px solid #b8860b; }
+    .pay { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+    .big { font-size: 24px; font-weight: 700; color: #1a7f37; }
+    .stats3 { display: flex; flex-wrap: wrap; gap: 44px; }
+    .stats3 small { display: block; margin-bottom: 4px; color: #667085; font-size: 12px; }
+    .stats3 b { font-size: 17px; }
 
     table { width: 100%; border-collapse: collapse; }
-    th { color: #667085; font-size: 12px; }
+    th { color: #667085; font-size: 12px; font-weight: 700; }
     th, td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; }
+    td.name { font-weight: 700; }
     tr.cat td { background: #f3efe6; color: #b8860b; font-weight: 700; }
+    .n { width: 78px; padding: 7px 9px; }
+    .fl { display: flex; align-items: center; gap: 5px; font-size: 12px; white-space: nowrap; }
+    .fl input { padding: 0; }
+    .dot { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 50%; background: #d9d2e6; }
+    .dot.on { background: #2fb344; }
     .muted { color: #667085; }
-    .note { margin: 0 0 12px; color: #667085; font-size: 13px; }
-    .pos { color: #176b37; font-weight: 600; }
-    .neg { color: #b42318; font-weight: 600; }
+    .note { margin: 10px 0 0; color: #667085; font-size: 13px; }
+    .pos { color: #1a7f37; font-weight: 600; }
+    .neg { color: #c0392b; font-weight: 600; }
     .hidden { display: none !important; }
 
     #message { position: fixed; z-index: 2; top: 12px; left: 50%; transform: translateX(-50%); padding: 10px 14px; white-space: pre-wrap; background: #fff; border-radius: 6px; box-shadow: 0 2px 8px #0002; }
@@ -84,8 +97,8 @@
   <section id="app" class="hidden">
     <header class="topbar">
       <h1>◆ Malvagos <b>System</b></h1>
-      <div class="row">
-        <span id="stats" class="muted"></span>
+      <div class="meta">
+        <span id="stats"></span>
         <span id="who"></span>
         <button id="logout" class="ghost" type="button">Log ud</button>
       </div>
@@ -107,16 +120,18 @@
     const now = new Date();
     let me = null, profile = null, currentTab = "Ind/ud", startCounter = 0, histMember = "";
     let period = { month: now.getMonth() + 1, year: now.getFullYear() };
-    let stockCache = [], cart = {}, cashType = "ind", cat = "Alle";
+    let stockCache = [], cart = {}, cashType = "ind", cat = "Alle", lcat = "Alle";
 
     const $ = s => document.querySelector(s);
     const byId = id => document.getElementById(id);
     const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-    const money = v => Number(v || 0).toLocaleString("da-DK", { style: "currency", currency: "DKK", maximumFractionDigits: 0 });
-    const dt = v => v ? new Date(v).toLocaleString("da-DK", { dateStyle: "short", timeStyle: "short" }) : "–";
+    const money = v => Number(v || 0).toLocaleString("da-DK", { maximumFractionDigits: 2 }) + " kr";
+    const dt = v => v ? new Date(v).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "–";
     const isAdmin = () => profile?.role === "admin";
     const nameOf = p => p?.full_name || p?.email || "–";
     const catOf = i => i.category || "Andet";
+    const value = i => Number(i.quantity || 0) * Number(i.buy_price || 0);
+    const priceOf = i => Number(cashType === "ind" ? i.sell_price : i.buy_price) || 0;
     const getFee = () => { try { return localStorage.getItem("fee") || ""; } catch { return ""; } };
 
     function say(text = "", type = "error") {
@@ -126,15 +141,16 @@
     }
 
     const cell = v => (v && v.html !== undefined) ? v.html : esc(v);
-    function table(headers, rows) {
+    function table(headers, rows, boldFirst = false) {
       if (!rows.length) return '<p class="muted">Ingen oplysninger endnu.</p>';
       return `<table><thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead>
-        <tbody>${rows.map(r => `<tr>${r.map(v => `<td>${cell(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+        <tbody>${rows.map(r => `<tr>${r.map((v, n) => `<td${boldFirst && n === 0 ? ' class="name"' : ""}>${cell(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     }
-    const card = (title, body) => `<section class="card"><h2>${title}</h2>${body}</section>`;
+    const card = (title, body) => `<section class="card">${title ? `<h2>${title}</h2>` : ""}${body}</section>`;
+    const statCard = items => card("", `<div class="stats3">${items.map(([l, v, c]) => `<div><small>${l}</small><b style="color:${c}">${v}</b></div>`).join("")}</div>`);
+    const chips = (cats, active, attr) => cats.map(c => `<button type="button" class="chip${c === active ? " on" : ""}" data-${attr}="${esc(c)}">${esc(c)}</button>`).join("");
     const must = r => { if (r.error) throw r.error; return r.data || []; };
     const list = (t, cols = "*", order = "created_at", asc = false) => db.from(t).select(cols).order(order, { ascending: asc });
-    const value = i => Number(i.quantity || 0) * Number(i.price || 0);
 
     function setStats(stock) {
       $("#stats").textContent = `${stock.length} varer · lagerværdi ${money(stock.reduce((s, i) => s + value(i), 0))}`;
@@ -161,39 +177,46 @@
 
       profile = data;
       say("");
-      $("#who").textContent = `${profile.full_name || me.email} · ${isAdmin() ? "Admin" : "Medlem"}`;
+      $("#who").textContent = `${profile.full_name || me.email} · ${isAdmin() ? "admin" : "medlem"}`;
       $("#tabs").innerHTML = tabs.map(t => `<button type="button" data-tab="${esc(t)}" class="${t === currentTab ? "active" : ""}">${esc(t)}</button>`).join("");
       await showTab(currentTab);
     }
 
-    // ---------- Ind/ud: fliser + kurv ----------
+    // ---------- Ind/ud ----------
     function cashHtml(entries) {
       const cats = ["Alle", ...[...new Set(stockCache.map(catOf))].sort()];
+      const sum = t => entries.filter(e => e.type === t).reduce((s, e) => s + Number(e.amount || 0), 0);
+      const inn = sum("ind"), ud = sum("ud");
       return `
-        <section class="card"><div class="seg">
-          <button type="button" class="${cashType === "ind" ? "on" : ""}" data-type="ind">Ind (penge ind · −lager)</button>
-          <button type="button" class="${cashType === "ud" ? "on" : ""}" data-type="ud">Ud (penge ud · +lager)</button>
-        </div></section>
         <section class="card">
-          <div id="chips" class="chips">${cats.map(c => `<button type="button" class="chip${c === cat ? " on" : ""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}</div>
-          <input id="csearch" placeholder="🔍 Søg vare…" style="width:100%;margin:10px 0">
+          <div class="seg">
+            <button type="button" class="${cashType === "ind" ? "on" : ""}" data-type="ind">Ind – penge ind (−lager)</button>
+            <button type="button" class="${cashType === "ud" ? "on" : ""}" data-type="ud">Ud – penge ud (+lager)</button>
+          </div>
+          <div id="chips" class="chips">${chips(cats, cat, "cat")}</div>
+          <input id="csearch" class="search" placeholder="🔍 Søg vare…">
           <div id="tiles" class="tiles"></div>
         </section>
-        <section class="card"><h2>Kurv</h2><div id="cart"></div></section>` +
-        card("Ind- og udbetalinger", table(["Dato", "Type", "Indhold", "Beløb"], entries.map(e => [
+        <section class="card"><b>Kurv</b><div id="cart" style="margin-top:6px"></div></section>
+        <section class="card">
+          <div class="sumline"><span>Varer</span><span id="sum">0 kr</span></div>
+          <div class="pay"><b id="paylabel"></b><span id="paytotal" class="big">0 kr</span></div>
+          <button type="button" id="savebtn" data-save-cart></button>
+        </section>` +
+        statCard([["Ind i alt", money(inn), "#1a7f37"], ["Ud i alt", money(ud), "#b42318"], ["Saldo", money(inn - ud), "#b8860b"]]) +
+        card("", table(["Tid", "Type", "Indhold"], entries.slice(0, 100).map(e => [
           dt(e.created_at),
           { html: e.type === "ind" ? '<span class="pos">Ind</span>' : '<span class="neg">Ud</span>' },
-          e.description || (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–"),
-          money(e.amount)
+          `${e.description || (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–")} → ${money(e.amount)}`
         ])));
     }
 
     function drawTiles() {
       const q = (byId("csearch")?.value || "").toLowerCase();
-      const items = stockCache.filter(i => (cat === "Alle" || catOf(i) === cat) && i.name.toLowerCase().includes(q));
+      const flag = cashType === "ind" ? "sells" : "buys";
+      const items = stockCache.filter(i => i[flag] !== false && (cat === "Alle" || catOf(i) === cat) && i.name.toLowerCase().includes(q));
       byId("tiles").innerHTML = items.length ? items.map(i =>
-        `<button type="button" class="tile${cashType === "ind" && Number(i.quantity) <= 0 ? " empty" : ""}" data-add="${esc(i.id)}">
-          <b>${esc(i.name)}</b><span>${money(i.price)} · lager ${esc(i.quantity)}</span></button>`).join("")
+        `<button type="button" class="tile" data-add="${esc(i.id)}"><div>${esc(i.name)}</div><span>${money(priceOf(i))} · lager ${esc(i.quantity)}</span></button>`).join("")
         : '<p class="muted">Ingen varer.</p>';
     }
 
@@ -201,16 +224,17 @@
 
     function drawCart() {
       const lines = cartLines();
-      const total = lines.reduce((s, l) => s + l.qty * Number(l.i.price || 0), 0);
-      byId("cart").innerHTML = lines.length ? `
-        <table><tbody>${lines.map(l => `<tr>
+      const total = lines.reduce((s, l) => s + l.qty * priceOf(l.i), 0);
+      byId("cart").innerHTML = lines.length ? `<table><tbody>${lines.map(l => `<tr>
           <td>${esc(l.i.name)}</td>
           <td><button type="button" class="ghost sm" data-dec="${esc(l.i.id)}">−</button> <b>${l.qty}</b> <button type="button" class="ghost sm" data-inc="${esc(l.i.id)}">+</button></td>
-          <td>${money(l.qty * Number(l.i.price || 0))}</td>
-          <td><button type="button" class="danger sm" data-rm="${esc(l.i.id)}">✕</button></td></tr>`).join("")}</tbody></table>
-        <div class="total"><span>${cashType === "ind" ? "Ind" : "Ud"} i alt</span><b>${money(total)}</b></div>
-        <button type="button" data-save-cart style="width:100%;margin-top:10px">Gem ${cashType === "ind" ? "indbetaling" : "udbetaling"}</button>`
-        : '<p class="muted">Klik på varer for at tilføje.</p>';
+          <td>${money(l.qty * priceOf(l.i))}</td>
+          <td><button type="button" class="danger sm" data-rm="${esc(l.i.id)}">✕</button></td></tr>`).join("")}</tbody></table>`
+        : '<span class="muted">Klik på varer for at tilføje.</span>';
+      byId("sum").textContent = money(total);
+      byId("paytotal").textContent = money(total);
+      byId("paylabel").textContent = cashType === "ind" ? "Samlet beløb ind" : "Samlet beløb ud";
+      byId("savebtn").textContent = cashType === "ind" ? "Gennemfør indbetaling" : "Gennemfør udbetaling";
     }
 
     function addToCart(id, d) {
@@ -226,7 +250,7 @@
 
     async function saveCart() {
       const lines = cartLines();
-      if (!lines.length) return;
+      if (!lines.length) return say("Kurven er tom.");
       const { error } = await db.rpc("register_cart", {
         p_type: cashType,
         p_items: lines.map(l => ({ id: l.i.id, qty: l.qty })),
@@ -238,23 +262,52 @@
       say("Gemt", "success");
     }
 
-    // ---------- Lager: grupperet efter kategori ----------
+    // ---------- Lager ----------
     function stockTable(stock, admin) {
       if (!stock.length) return '<p class="muted">Ingen varer endnu.</p>';
-      const heads = admin ? ["Vare", "Kategori", "På lager", "Pris", "Lagerværdi", ""] : ["Vare", "På lager", "Pris", "Lagerværdi"];
+      const heads = admin
+        ? ["Vare", "Kategori", "På lager", "Købspris", "Salgspris", "Køb", "Salg", "Lagerværdi", ""]
+        : ["Vare", "På lager", "Købspris", "Salgspris", "Køb", "Salg", "Lagerværdi"];
+      const num = (i, f) => admin
+        ? `<input class="n" type="number" min="0" step="${f === "quantity" ? 1 : 0.01}" data-id="${esc(i.id)}" data-f="${f}" value="${esc(i[f] ?? 0)}">`
+        : `<input class="n" type="number" value="${esc(i[f] ?? 0)}" disabled>`;
+      const chk = (i, f, label) => `<label class="fl"><input type="checkbox" ${admin ? `data-id="${esc(i.id)}" data-f="${f}"` : "disabled"}${i[f] !== false ? " checked" : ""}> ${label}</label>`;
+
       const groups = {};
       stock.forEach(i => (groups[catOf(i)] ||= []).push(i));
       const body = Object.keys(groups).sort().map(c =>
-        `<tr class="cat"><td colspan="${heads.length}">${esc(c)}</td></tr>` + groups[c].map(i => admin ? `<tr>
+        `<tr class="cat" data-cat="${esc(c)}"><td colspan="${heads.length}">${esc(c)}</td></tr>` +
+        groups[c].map(i => `<tr data-cat="${esc(c)}" data-name="${esc(i.name.toLowerCase())}">
           <td>${esc(i.name)}</td>
-          <td><input id="sc-${esc(i.id)}" value="${esc(i.category || "")}" list="cats" style="width:130px;margin:0"></td>
-          <td><input id="sq-${esc(i.id)}" type="number" min="0" step="1" value="${esc(i.quantity)}" style="width:90px;margin:0"></td>
-          <td><input id="sp-${esc(i.id)}" type="number" min="0" step="0.01" value="${esc(i.price)}" style="width:100px;margin:0"></td>
-          <td>${money(value(i))}</td>
-          <td><button type="button" data-save-stock="${esc(i.id)}">Gem</button> <button type="button" class="danger" data-del-stock="${esc(i.id)}">Slet</button></td></tr>`
-          : `<tr><td>${esc(i.name)}</td><td>${esc(i.quantity)}</td><td>${money(i.price)}</td><td>${money(value(i))}</td></tr>`).join("")
+          ${admin ? `<td><input data-id="${esc(i.id)}" data-f="category" list="cats" placeholder="Kategori" value="${esc(i.category || "")}" style="width:130px"></td>` : ""}
+          <td>${num(i, "quantity")}</td><td>${num(i, "buy_price")}</td><td>${num(i, "sell_price")}</td>
+          <td>${chk(i, "buys", "Vi køber")}</td><td>${chk(i, "sells", "Vi sælger")}</td>
+          <td id="sv-${esc(i.id)}">${money(value(i))}</td>
+          ${admin ? `<td><button type="button" class="danger sm" data-del-stock="${esc(i.id)}">Slet</button></td>` : ""}
+        </tr>`).join("")
       ).join("");
       return `<table><thead><tr>${heads.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table>`;
+    }
+
+    function applyLagerFilter() {
+      const q = (byId("search")?.value || "").toLowerCase();
+      document.querySelectorAll("#content tbody tr").forEach(r => {
+        const wrongCat = lcat !== "Alle" && r.dataset.cat !== lcat;
+        const isCat = r.classList.contains("cat");
+        r.classList.toggle("hidden", wrongCat || (q !== "" && (isCat || !(r.dataset.name || "").includes(q))));
+      });
+    }
+
+    async function saveField(t) {
+      const id = t.dataset.id, f = t.dataset.f;
+      const v = t.type === "checkbox" ? t.checked : t.type === "number" ? Number(t.value) : (t.value.trim() || null);
+      const { error } = await db.from("stock_items").update({ [f]: v }).eq("id", id);
+      if (error) return say(error.message);
+      const item = stockCache.find(s => s.id === id);
+      if (item) item[f] = v;
+      if (item && byId("sv-" + id)) byId("sv-" + id).textContent = money(value(item));
+      setStats(stockCache);
+      say("Gemt", "success");
     }
 
     async function showTab(tab) {
@@ -270,7 +323,7 @@
 
         if (tab === "Ind/ud") {
           const [entries, stock] = (await Promise.all([
-            db.from("cash_entries").select("*, stock_items(name)").order("created_at", { ascending: false }).limit(200),
+            db.from("cash_entries").select("*, stock_items(name)").order("created_at", { ascending: false }).limit(1000),
             list("stock_items", "*", "name", true)
           ])).map(must);
           stockCache = stock;
@@ -288,14 +341,16 @@
               <form data-form="stock" class="row">
                 <input name="name" placeholder="Varenavn" required>
                 <input name="category" list="cats" placeholder="Kategori">
-                <input name="quantity" type="number" min="0" step="1" placeholder="Antal" required>
-                <input name="price" type="number" min="0" step="0.01" placeholder="Pris pr. stk." required>
+                <input name="quantity" type="number" min="0" step="1" placeholder="Antal" style="width:90px" required>
+                <input name="buy_price" type="number" min="0" step="0.01" placeholder="Købspris" style="width:110px" required>
+                <input name="sell_price" type="number" min="0" step="0.01" placeholder="Salgspris" style="width:110px" required>
                 <button type="submit">Tilføj</button>
               </form>`) : "") +
             `<datalist id="cats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
             <section class="card">
-              ${admin ? "" : '<p class="note">🔒 Kun administratorer kan redigere varer og priser.</p>'}
-              <input id="search" placeholder="🔍 Søg vare…" style="width:100%;margin:0 0 10px">
+              ${admin ? "" : '<p class="muted" style="margin-top:0">🔒 Kun administratorer kan redigere priser, varer og køb/salg-status.</p>'}
+              <div class="chips">${chips(["Alle", ...cats], lcat, "lcat")}</div>
+              <input id="search" class="search" placeholder="🔍 Søg vare…">
               ${stockTable(stock, admin)}
             </section>`;
         }
@@ -307,20 +362,20 @@
           ])).map(must);
           const paidIds = new Set(paid.map(d => d.member_id));
           const role = m => m.role === "admin" ? "Admin" : "Medlem";
-          const status = m => ({ html: paidIds.has(m.id) ? '<span class="pos">✔ Betalt</span>' : '<span class="neg">Ikke betalt</span>' });
+          const status = m => ({ html: paidIds.has(m.id) ? '<span class="dot on"></span><span class="pos">Betalt</span>' : '<span class="dot"></span><span class="muted">Ikke betalt</span>' });
           const kHead = `Kontingent ${months[now.getMonth()]}`;
           const rows = members.map(m => admin ? [
-            { html: `<input id="mn-${esc(m.id)}" value="${esc(m.full_name || "")}" placeholder="Navn" style="margin:0">` },
+            { html: `<input id="mn-${esc(m.id)}" value="${esc(m.full_name || "")}" placeholder="Navn">` },
             m.email,
-            m.id === me.id ? role(m) : { html: `<select id="mr-${esc(m.id)}" style="margin:0">
+            m.id === me.id ? role(m) : { html: `<select id="mr-${esc(m.id)}">
               <option value="member"${m.role !== "admin" ? " selected" : ""}>Medlem</option>
               <option value="admin"${m.role === "admin" ? " selected" : ""}>Admin</option></select>` },
             status(m),
             { html: `<button type="button" data-save-member="${esc(m.id)}">Gem</button>` }
           ] : [m.full_name || "–", m.email, role(m), status(m)]);
 
-          html = card("Medlemmer", table(admin ? ["Navn", "E-mail", "Rolle", kHead, ""] : ["Navn", "E-mail", "Rolle", kHead], rows)) +
-            (admin ? '<p class="note">Nye medlemmer oprettes under Authentication → Users i Supabase og vises her automatisk.</p>' : "");
+          html = card("Medlemmer", table(admin ? ["Navn", "E-mail", "Rolle", kHead, ""] : ["Navn", "E-mail", "Rolle", kHead], rows, !admin)
+            + `<p class="note">Kontingent viser status for den aktuelle måned. Betalinger registreres under Kontingent.${admin ? " Nye medlemmer oprettes under Authentication → Users i Supabase og vises her automatisk." : ""}</p>`);
         }
 
         if (tab === "Kontingent") {
@@ -332,20 +387,19 @@
           const total = paid.reduce((s, d) => s + Number(d.amount || 0), 0);
 
           html =
-            card("Periode", `
-              <div class="row">
+            card("", `<div class="row">
                 <select id="kmonth">${months.map((m, i) => `<option value="${i + 1}"${i + 1 === period.month ? " selected" : ""}>${m}</option>`).join("")}</select>
                 <input id="kyear" type="number" value="${period.year}" style="width:100px">
                 ${admin ? `<span class="muted" style="margin-left:8px">Kontingent pr. måned:</span>
                   <input id="kfee" type="number" min="0" step="0.01" value="${esc(getFee())}" placeholder="kr." style="width:110px">` : ""}
-              </div>
-              <p class="muted" style="margin-bottom:0">${paid.length} af ${members.length} har betalt for ${months[period.month - 1]} ${period.year} · ${money(total)} indbetalt</p>`) +
-            card("Hvem har betalt?", table(["Medlem", "Status", "Beløb", "Betalt den"].concat(admin ? [""] : []),
+              </div>`) +
+            statCard([["Har betalt", `${paid.length} af ${members.length}`, "#1a7f37"], ["Mangler", String(members.length - paid.length), "#b42318"], ["Indbetalt", money(total), "#b8860b"]]) +
+            card("Hvem har betalt for " + months[period.month - 1] + " " + period.year + "?", table(["Medlem", "Status", "Beløb", "Betalt den"].concat(admin ? [""] : []),
               members.map(m => {
                 const d = byMember[m.id];
                 const row = [
                   nameOf(m),
-                  { html: d ? '<span class="pos">✔ Betalt</span>' : '<span class="neg">Ikke betalt</span>' },
+                  { html: d ? '<span class="dot on"></span><span class="pos">Betalt</span>' : '<span class="dot"></span><span class="muted">Ikke betalt</span>' },
                   d ? money(d.amount) : "–",
                   d ? dt(d.paid_at || d.created_at) : "–"
                 ];
@@ -353,30 +407,30 @@
                   ? `<button type="button" class="ghost" data-unpay="${esc(d.id)}">Fortryd</button>`
                   : `<button type="button" data-markpaid="${esc(m.id)}">Markér betalt</button>` });
                 return row;
-              })));
+              }), true));
         }
 
         if (tab === "Kontingent-historik") {
           let q = db.from("dues").select("*, profiles(full_name, email)").eq("paid", true)
-            .order("created_at", { ascending: false }).limit(500);
+            .order("created_at", { ascending: false }).limit(1000);
           if (histMember) q = q.eq("member_id", histMember);
           const members = must(await list("profiles", "id, full_name, email", "email", true));
           const dues = must(await q);
           const total = dues.reduce((s, d) => s + Number(d.amount || 0), 0);
 
           html =
-            card("Filter", `
-              <select id="hfilter">
+            card("", `<select id="hfilter">
                 <option value="">Alle medlemmer</option>
                 ${members.map(m => `<option value="${esc(m.id)}"${m.id === histMember ? " selected" : ""}>${esc(nameOf(m))}</option>`).join("")}
-              </select>
-              <p class="muted" style="margin-bottom:0">${dues.length} betalinger · ${money(total)} i alt</p>`) +
-            card("Kontingent-historik", table(["Betalt den", "Medlem", "Periode", "Beløb"],
-              dues.map(d => [dt(d.paid_at || d.created_at), nameOf(d.profiles), `${months[(d.month || 1) - 1]} ${d.year ?? ""}`, money(d.amount)])));
+              </select>`) +
+            statCard([["Betalinger", String(dues.length), "#172033"], ["Indbetalt i alt", money(total), "#1a7f37"]]) +
+            card("", table(["Betalt den", "Medlem", "Periode", "Beløb"],
+              dues.slice(0, 200).map(d => [dt(d.paid_at || d.created_at), nameOf(d.profiles), `${months[(d.month || 1) - 1]} ${d.year ?? ""}`, money(d.amount)])));
         }
 
         out.innerHTML = html;
         if (tab === "Ind/ud") { drawTiles(); drawCart(); }
+        if (tab === "Lager") applyLagerFilter();
       } catch (err) {
         out.innerHTML = card("Noget gik galt", `<p>${esc(err.message || err)}</p>
           <p class="muted">Hvis fejlen nævner en manglende kolonne eller funktion, så kør SQL-opdateringen i Supabase.</p>`);
@@ -404,23 +458,23 @@
       e.preventDefault();
       const f = e.target, d = Object.fromEntries(new FormData(f));
       if (f.dataset.form === "stock") {
-        run(db.from("stock_items").insert({ name: d.name, category: d.category.trim() || null, quantity: Number(d.quantity), price: Number(d.price) }));
+        run(db.from("stock_items").insert({
+          name: d.name, category: d.category.trim() || null, quantity: Number(d.quantity),
+          buy_price: Number(d.buy_price), sell_price: Number(d.sell_price)
+        }));
       }
     });
 
     $("#content").addEventListener("input", e => {
       const t = e.target;
       if (t.id === "csearch") drawTiles();
-      if (t.id === "search") {
-        const q = t.value.toLowerCase();
-        document.querySelectorAll("#content tbody tr").forEach(r =>
-          r.classList.toggle("hidden", q !== "" && (r.classList.contains("cat") || !r.textContent.toLowerCase().includes(q))));
-      }
+      if (t.id === "search") applyLagerFilter();
       if (t.id === "kfee") { try { localStorage.setItem("fee", t.value); } catch {} }
     });
 
     $("#content").addEventListener("change", e => {
       const t = e.target;
+      if (t.dataset.f) saveField(t);
       if (t.id === "kmonth" || t.id === "kyear") {
         period.month = Number(byId("kmonth").value);
         const y = Number(byId("kyear").value);
@@ -442,8 +496,13 @@
       }
       if (ds.cat) {
         cat = ds.cat;
-        document.querySelectorAll("#chips button").forEach(x => x.classList.toggle("on", x === b));
+        b.parentElement.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
         drawTiles();
+      }
+      if (ds.lcat) {
+        lcat = ds.lcat;
+        b.parentElement.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+        applyLagerFilter();
       }
       if (ds.add) addToCart(ds.add, 1);
       if (ds.inc) addToCart(ds.inc, 1);
@@ -451,13 +510,6 @@
       if (ds.rm) { delete cart[ds.rm]; drawCart(); }
       if (ds.saveCart !== undefined) saveCart();
 
-      if (ds.saveStock) {
-        run(db.from("stock_items").update({
-          category: byId("sc-" + ds.saveStock).value.trim() || null,
-          quantity: Number(byId("sq-" + ds.saveStock).value),
-          price: Number(byId("sp-" + ds.saveStock).value)
-        }).eq("id", ds.saveStock));
-      }
       if (ds.delStock && confirm("Slette varen?")) {
         run(db.from("stock_items").delete().eq("id", ds.delStock), "Varen er slettet");
       }
