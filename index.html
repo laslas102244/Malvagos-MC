@@ -410,3 +410,328 @@
                 <form data-form="stock" class="row">
                   <input name="name" placeholder="Varenavn" required>
                   <input name="quantity" type="number"
+
+                  <input name="quantity" type="number" id="lagerAntalInput" placeholder="Antal" min="0" style="display:none;">
+
+<!-- ======================= LAGER SEKTION ======================= -->
+<div id="lagerSection" class="section" style="display:none;">
+  <h2>Lager</h2>
+  <form id="lagerForm">
+    <input type="hidden" id="lagerId">
+    <input type="text" id="lagerNavn" placeholder="Varenavn" required>
+    <input type="number" id="lagerAntal" placeholder="Antal" min="0" required>
+    <input type="number" id="lagerPris" placeholder="Pris" min="0" step="0.01" required>
+    <button type="submit">Gem vare</button>
+    <button type="button" id="lagerAnnuller" style="display:none;">Annuller redigering</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Navn</th>
+        <th>Antal</th>
+        <th>Pris</th>
+        <th>Handlinger</th>
+      </tr>
+    </thead>
+    <tbody id="lagerTabel"></tbody>
+  </table>
+</div>
+
+<!-- ======================= KUNDER SEKTION ======================= -->
+<div id="kunderSection" class="section" style="display:none;">
+  <h2>Kunder</h2>
+  <form id="kundeForm">
+    <input type="hidden" id="kundeId">
+    <input type="text" id="kundeNavn" placeholder="Navn" required>
+    <input type="text" id="kundeTelefon" placeholder="Telefon">
+    <input type="email" id="kundeEmail" placeholder="Email">
+    <button type="submit">Gem kunde</button>
+    <button type="button" id="kundeAnnuller" style="display:none;">Annuller redigering</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Navn</th>
+        <th>Telefon</th>
+        <th>Email</th>
+        <th>Handlinger</th>
+      </tr>
+    </thead>
+    <tbody id="kunderTabel"></tbody>
+  </table>
+</div>
+
+<!-- ======================= HANDLER (SALG) SEKTION ======================= -->
+<div id="handlerSection" class="section" style="display:none;">
+  <h2>Handler / Salg</h2>
+  <form id="handelForm">
+    <select id="handelKunde" required>
+      <option value="">Vælg kunde</option>
+    </select>
+    <select id="handelVare" required>
+      <option value="">Vælg vare</option>
+    </select>
+    <input type="number" id="handelAntal" placeholder="Antal" min="1" required>
+    <button type="submit">Registrer salg</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Dato</th>
+        <th>Kunde</th>
+        <th>Vare</th>
+        <th>Antal</th>
+        <th>Total</th>
+        <th>Handlinger</th>
+      </tr>
+    </thead>
+    <tbody id="handlerTabel"></tbody>
+  </table>
+</div>
+
+<!-- ======================= KONTINGENT SEKTION ======================= -->
+<div id="kontingentSection" class="section" style="display:none;">
+  <h2>Kontingent</h2>
+  <form id="kontingentForm">
+    <select id="kontingentMedlem" required>
+      <option value="">Vælg medlem</option>
+    </select>
+    <select id="kontingentMaaned" required>
+      <option value="1">Januar</option>
+      <option value="2">Februar</option>
+      <option value="3">Marts</option>
+      <option value="4">April</option>
+      <option value="5">Maj</option>
+      <option value="6">Juni</option>
+      <option value="7">Juli</option>
+      <option value="8">August</option>
+      <option value="9">September</option>
+      <option value="10">Oktober</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
+    <input type="number" id="kontingentAar" placeholder="År" value="2026" required>
+    <button type="submit">Registrer kontingent</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Medlem</th>
+        <th>Måned</th>
+        <th>År</th>
+        <th>Status</th>
+        <th>Handlinger</th>
+      </tr>
+    </thead>
+    <tbody id="kontingentTabel"></tbody>
+  </table>
+</div>
+
+<!-- ======================= MEDLEMMER SEKTION ======================= -->
+<div id="medlemmerSection" class="section" style="display:none;">
+  <h2>Medlemmer</h2>
+  <form id="medlemForm">
+    <input type="hidden" id="medlemId">
+    <input type="text" id="medlemNavn" placeholder="Navn" required>
+    <input type="text" id="medlemRolle" placeholder="Rolle">
+    <input type="date" id="medlemIndmeldt">
+    <button type="submit">Gem medlem</button>
+    <button type="button" id="medlemAnnuller" style="display:none;">Annuller redigering</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Navn</th>
+        <th>Rolle</th>
+        <th>Indmeldt</th>
+        <th>Handlinger</th>
+      </tr>
+    </thead>
+    <tbody id="medlemmerTabel"></tbody>
+  </table>
+</div>
+
+<script>
+/* =========================================================
+   SUPABASE OPSÆTNING
+   Udskift disse to linjer med dine egne, hvis de ikke allerede
+   er sat tidligere i filen.
+   ========================================================= */
+const SUPABASE_URL = "https://DIT-PROJEKT.supabase.co";
+const SUPABASE_ANON_KEY = "DIN-ANON-KEY";
+
+// Hvis supabase-client allerede er oprettet tidligere i filen
+// (f.eks. som "supabase" eller "client"), så brug den i stedet
+// for at oprette en ny her. Fjern linjen nedenfor hvis det er tilfældet.
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* =========================================================
+   LAGER
+   Tabel: lager (id, navn, antal, pris)
+   ========================================================= */
+const lagerForm = document.getElementById('lagerForm');
+const lagerTabel = document.getElementById('lagerTabel');
+const lagerAnnuller = document.getElementById('lagerAnnuller');
+
+async function hentLager() {
+  const { data, error } = await supabaseClient
+    .from('lager')
+    .select('*')
+    .order('navn', { ascending: true });
+
+  if (error) {
+    console.error('Fejl ved hentning af lager:', error);
+    return;
+  }
+
+  lagerTabel.innerHTML = '';
+  data.forEach(vare => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${vare.navn}</td>
+      <td>${vare.antal}</td>
+      <td>${vare.pris.toFixed(2)} kr</td>
+      <td>
+        <button onclick="redigerLager('${vare.id}')">Rediger</button>
+        <button onclick="sletLager('${vare.id}')">Slet</button>
+      </td>
+    `;
+    lagerTabel.appendChild(row);
+  });
+
+  opdaterVareDropdown(data);
+}
+
+lagerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const id = document.getElementById('lagerId').value;
+  const navn = document.getElementById('lagerNavn').value;
+  const antal = parseInt(document.getElementById('lagerAntal').value);
+  const pris = parseFloat(document.getElementById('lagerPris').value);
+
+  if (id) {
+    const { error } = await supabaseClient
+      .from('lager')
+      .update({ navn, antal, pris })
+      .eq('id', id);
+
+    if (error) {
+      alert('Fejl ved opdatering: ' + error.message);
+      return;
+    }
+  } else {
+    const { error } = await supabaseClient
+      .from('lager')
+      .insert([{ navn, antal, pris }]);
+
+    if (error) {
+      alert('Fejl ved oprettelse: ' + error.message);
+      return;
+    }
+  }
+
+  lagerForm.reset();
+  document.getElementById('lagerId').value = '';
+  lagerAnnuller.style.display = 'none';
+  hentLager();
+});
+
+async function redigerLager(id) {
+  const { data, error } = await supabaseClient
+    .from('lager')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    alert('Fejl ved hentning af vare: ' + error.message);
+    return;
+  }
+
+  document.getElementById('lagerId').value = data.id;
+  document.getElementById('lagerNavn').value = data.navn;
+  document.getElementById('lagerAntal').value = data.antal;
+  document.getElementById('lagerPris').value = data.pris;
+  lagerAnnuller.style.display = 'inline-block';
+}
+
+lagerAnnuller.addEventListener('click', () => {
+  lagerForm.reset();
+  document.getElementById('lagerId').value = '';
+  lagerAnnuller.style.display = 'none';
+});
+
+async function sletLager(id) {
+  if (!confirm('Er du sikker på at du vil slette denne vare?')) return;
+
+  const { error } = await supabaseClient
+    .from('lager')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    alert('Fejl ved sletning: ' + error.message);
+    return;
+  }
+
+  hentLager();
+}
+
+/* =========================================================
+   KUNDER
+   Tabel: kunder (id, navn, telefon, email)
+   ========================================================= */
+const kundeForm = document.getElementById('kundeForm');
+const kunderTabel = document.getElementById('kunderTabel');
+const kundeAnnuller = document.getElementById('kundeAnnuller');
+
+async function hentKunder() {
+  const { data, error } = await supabaseClient
+    .from('kunder')
+    .select('*')
+    .order('navn', { ascending: true });
+
+  if (error) {
+    console.error('Fejl ved hentning af kunder:', error);
+    return;
+  }
+
+  kunderTabel.innerHTML = '';
+  data.forEach(kunde => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${kunde.navn}</td>
+      <td>${kunde.telefon || '-'}</td>
+      <td>${kunde.email || '-'}</td>
+      <td>
+        <button onclick="redigerKunde('${kunde.id}')">Rediger</button>
+        <button onclick="sletKunde('${kunde.id}')">Slet</button>
+      </td>
+    `;
+    kunderTabel.appendChild(row);
+  });
+
+  opdaterKundeDropdown(data);
+}
+
+kundeForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const id = document.getElementById('kundeId').value;
+  const navn = document.getElementById('kundeNavn').value;
+  const telefon = document.getElementById('kundeTelefon').value;
+  const email = document.getElementById('kundeEmail').value;
+
+  if (id) {
+    const { error } = await supabaseClient
+      .from('kunder')
+      .update({ navn, telefon, email })
+      .eq('id', id);
+
+    if (error) {
