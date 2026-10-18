@@ -47,6 +47,7 @@
     .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; max-height: 270px; overflow: auto; padding-right: 4px; }
     .tile { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 10px; text-align: left; background: #fff; color: #172033; border: 1px solid #e5e2dc; border-radius: 6px; font-weight: 400; }
     .tile span { font-size: 12px; color: #667085; }
+    .qty { width: 80px; padding: 5px 8px; text-align: center; font-weight: 700; }
 
     .sumline { display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 2px solid #b8860b; }
     .pay { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
@@ -115,12 +116,29 @@
     const SUPABASE_KEY = "sb_publishable_4njY-sWB9J2UTcmNmQuuDA_b5bLC4Vp";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const tabs = ["Ind/ud", "Lager", "Medlemmer", "Kontingent", "Kontingent-historik"];
+    const tabs = ["Ind/ud", "Handler", "Lager", "Medlemmer", "Kontingent", "Kontingent-historik"];
     const months = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
     const now = new Date();
+    const isoLocal = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     let me = null, profile = null, currentTab = "Ind/ud", startCounter = 0, histMember = "";
+    let payDate = isoLocal(now);
     let period = { month: now.getMonth() + 1, year: now.getFullYear() };
-    let stockCache = [], cart = {}, cashType = "ind", cat = "Alle", lcat = "Alle";
+    let stockCache = [], cart = {}, cashType = "ind", cat = "Alle", lcat = "Alle", hType = "alle";
+
+    // Varer fra Pawnshop-systemet: [navn, kategori, købspris, salgspris, B=Vi køber / S=Vi sælger]
+    const SEED_ITEMS = [
+      ["Bagpanel", "Elektronik", 500, 500, "B"], ["Dekrypteringsenhed", "Elektronik", 200, 200, "B"], ["Kabler", "Elektronik", 700, 700, "B"], ["KryptaNode Modul", "Elektronik", 1250, 5000, "S"], ["Xeltrix Enhed", "Elektronik", 1250, 5000, "S"], ["SFruit S420", "Elektronik", 7500, 24500, "BS"], ["Ødelagt Vinkelsliber", "Elektronik", 350, 455, "B"], ["Slagboremaskine", "Elektronik", 3000, 8500, "BS"], ["Rød USB", "Elektronik", 25000, 40000, "BS"], ["Blå USB", "Elektronik", 35000, 45500, "BS"], ["Grøn USB", "Elektronik", 40000, 52000, "BS"], ["Vinkelsliber", "Elektronik", 0, 12000, "S"], ["Gul boremaskine", "Elektronik", 0, 7500, "S"], ["Ordrelister M/ Materialer", "Elektronik", 0, 250, "S"], ["Ordrelister U/ Materialer", "Elektronik", 0, 500, "S"],
+      ["Normal Lockpick", "Lockpicks", 400, 1000, "S"], ["Advanced Lockpick", "Lockpicks", 250, 5000, "S"],
+      ["C4", "Andet", 50000, 70000, "BS"], ["Bandage", "Andet", 200, 1500, "S"], ["Sportstaske", "Andet", 500, 10000, "BS"], ["Nummerplade", "Andet", 4500, 10000, "BS"], ["Stofsæk", "Andet", 15, 20, "B"], ["Strips", "Andet", 15, 20, "BS"], ["Lighter", "Andet", 15, 20, "B"], ["Skruetrækkersæt", "Andet", 0, 15000, "S"], ["Tablet", "Andet", 0, 17000, "S"], ["Nexdrive USB", "Andet", 0, 7000, "S"], ["A Kontrakt", "Andet", 50000, 150000, "B"], ["B Kontrakt", "Andet", 1000, 12500, "BS"],
+      ["Gummi", "Materialer", 120, 155, "B"], ["Stål", "Materialer", 150, 195, "B"], ["Glas", "Materialer", 120, 155, "B"], ["Metalskrot", "Materialer", 110, 145, "B"], ["Elektronik", "Materialer", 100, 130, "B"], ["Tekstil", "Materialer", 50, 65, "B"], ["Træ", "Materialer", 20, 25, "B"], ["Aluminium", "Materialer", 110, 145, "B"], ["Plastik", "Materialer", 110, 145, "B"], ["Kobber", "Materialer", 120, 155, "B"], ["Genbrugsmaterialer", "Materialer", 350, 455, "B"], ["guld spaydåse", "Materialer", 0, 0, "BS"],
+      ["Raf. Gummi", "Raffinerede materialer", 1200, 1560, "B"], ["Raf. Stål", "Raffinerede materialer", 1500, 1950, "B"], ["Raf. Glas", "Raffinerede materialer", 600, 780, "B"], ["Raf. Metal", "Raffinerede materialer", 1000, 1300, "B"], ["Raf. El", "Raffinerede materialer", 600, 780, "B"], ["Raf. Træ", "Raffinerede materialer", 600, 780, "BS"], ["Raf. Alu", "Raffinerede materialer", 1000, 1300, "B"], ["Raf. Plastik", "Raffinerede materialer", 1000, 1300, "B"], ["Raf. Kobber", "Raffinerede materialer", 1200, 1560, "B"],
+      ["T1 alle", "Stoffer", 100, 1000, "S"], ["T2 alle", "Stoffer", 1000, 2500, "BS"], ["T3 Coke", "Stoffer", 2500, 3700, "BS"], ["T3 Heroin", "Stoffer", 2500, 3700, "BS"], ["T3 Weed", "Stoffer", 2500, 3700, "BS"], ["Flyd. Gødning", "Stoffer", 100, 150, "BS"], ["Pakker, kanyler mm.", "Stoffer", 50, 250, "BS"], ["3. Stjernet Vand", "Stoffer", 100, 220, "BS"], ["3. Stjernet Gødning", "Stoffer", 100, 220, "BS"], ["ladybug", "Stoffer", 0, 100, "BS"],
+      ["Veste", "Veste & Plader", 5000, 25000, "BS"], ["Plade Tier. 1", "Veste & Plader", 7500, 14000, "BS"], ["Plade Tier. 2", "Veste & Plader", 12500, 19500, "BS"], ["Plade Tier. 3", "Veste & Plader", 17500, 25500, "BS"], ["Fuld sæt Plader", "Veste & Plader", 45000, 75000, "BS"],
+      ["Ext. Mag", "Accessories", 25000, 50000, "S"], ["Lyddæmper", "Accessories", 20000, 50000, "S"], ["Taktisk Lyddæmper", "Accessories", 0, 30000, "S"], ["Taktisk Lommelygte", "Accessories", 0, 30000, "S"], ["Luksus Våbenkit", "Accessories", 7500, 20000, "BS"], ["Våbenrensesæt", "Accessories", 10000, 70000, "BS"],
+      ["9mm", "Skud", 600, 1200, "BS"], [".45 ACP", "Skud", 600, 1100, "BS"], [".50 AE", "Skud", 600, 1100, "BS"], [".38 LC", "Skud", 200, 1100, "BS"], ["44. Magnum", "Skud", 50, 1200, "BS"], ["12. Gauge", "Skud", 50, 1200, "BS"],
+      ["Deagle", "Våben", 400000, 500000, "BS"], ["Heavy", "Våben", 300000, 375000, "BS"], ["Revolver", "Våben", 250000, 350000, "BS"], ["Taurus", "Våben", 200000, 350000, "BS"], ["SNS", "Våben", 30000, 225000, "BS"], ["HK P7", "Våben", 20000, 95000, "BS"],
+      ["Knojern", "Småvåben", 0, 5000, "S"], ["Dagger", "Småvåben", 0, 5000, "S"], ["Machete", "Småvåben", 0, 5000, "S"],
+    ];
 
     const $ = s => document.querySelector(s);
     const byId = id => document.getElementById(id);
@@ -128,7 +146,7 @@
     const money = v => Number(v || 0).toLocaleString("da-DK", { maximumFractionDigits: 2 }) + " kr";
     const dt = v => v ? new Date(v).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "–";
     const isAdmin = () => profile?.role === "admin";
-    const nameOf = p => p?.full_name || p?.email || "–";
+    const nameOf = p => p?.full_name || "Uden navn";
     const catOf = i => i.category || "Andet";
     const value = i => Number(i.quantity || 0) * Number(i.buy_price || 0);
     const priceOf = i => Number(cashType === "ind" ? i.sell_price : i.buy_price) || 0;
@@ -177,7 +195,7 @@
 
       profile = data;
       say("");
-      $("#who").textContent = `${profile.full_name || me.email} · ${isAdmin() ? "admin" : "medlem"}`;
+      $("#who").textContent = `${nameOf(profile)} · ${isAdmin() ? "admin" : "medlem"}`;
       $("#tabs").innerHTML = tabs.map(t => `<button type="button" data-tab="${esc(t)}" class="${t === currentTab ? "active" : ""}">${esc(t)}</button>`).join("");
       await showTab(currentTab);
     }
@@ -222,12 +240,14 @@
 
     const cartLines = () => Object.entries(cart).map(([id, qty]) => ({ i: stockCache.find(s => s.id === id), qty })).filter(l => l.i);
 
-    function drawCart() {
+    function drawCart(focusId) {
       const lines = cartLines();
       const total = lines.reduce((s, l) => s + l.qty * priceOf(l.i), 0);
       byId("cart").innerHTML = lines.length ? `<table><tbody>${lines.map(l => `<tr>
           <td>${esc(l.i.name)}</td>
-          <td><button type="button" class="ghost sm" data-dec="${esc(l.i.id)}">−</button> <b>${l.qty}</b> <button type="button" class="ghost sm" data-inc="${esc(l.i.id)}">+</button></td>
+          <td><button type="button" class="ghost sm" data-dec="${esc(l.i.id)}">−</button>
+              <input type="number" min="1" step="1" class="qty" data-qty="${esc(l.i.id)}" value="${l.qty}">
+              <button type="button" class="ghost sm" data-inc="${esc(l.i.id)}">+</button></td>
           <td>${money(l.qty * priceOf(l.i))}</td>
           <td><button type="button" class="danger sm" data-rm="${esc(l.i.id)}">✕</button></td></tr>`).join("")}</tbody></table>`
         : '<span class="muted">Klik på varer for at tilføje.</span>';
@@ -235,16 +255,24 @@
       byId("paytotal").textContent = money(total);
       byId("paylabel").textContent = cashType === "ind" ? "Samlet beløb ind" : "Samlet beløb ud";
       byId("savebtn").textContent = cashType === "ind" ? "Gennemfør indbetaling" : "Gennemfør udbetaling";
+      if (focusId) {
+        const inp = byId("cart").querySelector(`input[data-qty="${CSS.escape(focusId)}"]`);
+        if (inp) { inp.focus(); inp.select(); }
+      }
     }
 
-    function addToCart(id, d) {
+    function addToCart(id, d, focus = false) {
       const item = stockCache.find(s => s.id === id);
       if (!item) return;
       const next = (cart[id] || 0) + d;
-      if (next <= 0) delete cart[id];
-      else if (cashType === "ind" && next > Number(item.quantity)) return say(`Kun ${item.quantity} ${item.name} på lager.`);
-      else cart[id] = next;
+      if (next <= 0) delete cart[id]; else cart[id] = next;
       say("");
+      drawCart(focus ? id : null);
+    }
+
+    function setQty(id, raw) {
+      const n = Math.floor(Number(raw));
+      if (!(n > 0)) delete cart[id]; else cart[id] = n;
       drawCart();
     }
 
@@ -310,6 +338,14 @@
       say("Gemt", "success");
     }
 
+    async function seedItems() {
+      const existing = new Set(must(await list("stock_items", "name", "name", true)).map(i => i.name.toLowerCase()));
+      const rows = SEED_ITEMS.filter(([n]) => !existing.has(n.toLowerCase()))
+        .map(([name, category, buy_price, sell_price, f]) => ({ name, category, quantity: 0, buy_price, sell_price, buys: f.includes("B"), sells: f.includes("S") }));
+      if (!rows.length) return say("Alle standardvarer findes allerede.", "success");
+      await run(db.from("stock_items").insert(rows), `${rows.length} varer tilføjet`);
+    }
+
     async function showTab(tab) {
       currentTab = tab;
       document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
@@ -331,6 +367,28 @@
           html = cashHtml(entries);
         }
 
+        if (tab === "Handler") {
+          const [entries, stock] = (await Promise.all([
+            db.from("cash_entries").select("*, stock_items(name)").order("created_at", { ascending: false }).limit(1000),
+            list("stock_items", "*", "name", true)
+          ])).map(must);
+          setStats(stock);
+          const shown = hType === "alle" ? entries : entries.filter(e => e.type === hType);
+          const sum = t => entries.filter(e => e.type === t).reduce((s, e) => s + Number(e.amount || 0), 0);
+          const inn = sum("ind"), ud = sum("ud");
+          html =
+            card("", `<div class="chips" style="margin:0;padding:0">
+              ${[["alle", "Alle"], ["ind", "Ind"], ["ud", "Ud"]].map(([k, l]) => `<button type="button" class="chip${hType === k ? " on" : ""}" data-htype="${k}">${l}</button>`).join("")}
+            </div>`) +
+            statCard([["Handler", String(entries.length), "#172033"], ["Ind i alt", money(inn), "#1a7f37"], ["Ud i alt", money(ud), "#b42318"], ["Saldo", money(inn - ud), "#b8860b"]]) +
+            card("Færdige handler", table(["Tid", "Type", "Varer", "Beløb"], shown.slice(0, 300).map(e => [
+              dt(e.created_at),
+              { html: e.type === "ind" ? '<span class="pos">Ind</span>' : '<span class="neg">Ud</span>' },
+              e.description || (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–"),
+              { html: `<span class="${e.type === "ind" ? "pos" : "neg"}">${e.type === "ind" ? "+" : "−"}${esc(money(e.amount))}</span>` }
+            ])));
+        }
+
         if (tab === "Lager") {
           const stock = must(await list("stock_items", "*", "name", true));
           stockCache = stock;
@@ -345,7 +403,8 @@
                 <input name="buy_price" type="number" min="0" step="0.01" placeholder="Købspris" style="width:110px" required>
                 <input name="sell_price" type="number" min="0" step="0.01" placeholder="Salgspris" style="width:110px" required>
                 <button type="submit">Tilføj</button>
-              </form>`) : "") +
+              </form>
+              <p class="note">Mangler du varerne fra Pawnshop? <button type="button" class="ghost sm" data-seed>Importér standardvarer</button> (springer varer over, som findes i forvejen).</p>`) : "") +
             `<datalist id="cats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
             <section class="card">
               ${admin ? "" : '<p class="muted" style="margin-top:0">🔒 Kun administratorer kan redigere priser, varer og køb/salg-status.</p>'}
@@ -364,18 +423,19 @@
           const role = m => m.role === "admin" ? "Admin" : "Medlem";
           const status = m => ({ html: paidIds.has(m.id) ? '<span class="dot on"></span><span class="pos">Betalt</span>' : '<span class="dot"></span><span class="muted">Ikke betalt</span>' });
           const kHead = `Kontingent ${months[now.getMonth()]}`;
+          // E-mail vises kun for admin her, så de kan se hvilken konto de giver navn til
           const rows = members.map(m => admin ? [
             { html: `<input id="mn-${esc(m.id)}" value="${esc(m.full_name || "")}" placeholder="Navn">` },
-            m.email,
+            { html: `<span class="muted">${esc(m.email)}</span>` },
             m.id === me.id ? role(m) : { html: `<select id="mr-${esc(m.id)}">
               <option value="member"${m.role !== "admin" ? " selected" : ""}>Medlem</option>
               <option value="admin"${m.role === "admin" ? " selected" : ""}>Admin</option></select>` },
             status(m),
             { html: `<button type="button" data-save-member="${esc(m.id)}">Gem</button>` }
-          ] : [m.full_name || "–", m.email, role(m), status(m)]);
+          ] : [nameOf(m), role(m), status(m)]);
 
-          html = card("Medlemmer", table(admin ? ["Navn", "E-mail", "Rolle", kHead, ""] : ["Navn", "E-mail", "Rolle", kHead], rows, !admin)
-            + `<p class="note">Kontingent viser status for den aktuelle måned. Betalinger registreres under Kontingent.${admin ? " Nye medlemmer oprettes under Authentication → Users i Supabase og vises her automatisk." : ""}</p>`);
+          html = card("Medlemmer", table(admin ? ["Navn", "Konto (kun admin)", "Rolle", kHead, ""] : ["Navn", "Rolle", kHead], rows, !admin)
+            + `<p class="note">Kontingent viser status for den aktuelle måned. Betalinger registreres under Kontingent.${admin ? " Nye medlemmer oprettes under Authentication → Users i Supabase og vises her automatisk. Giv dem et navn her – det er navnet alle andre ser." : ""}</p>`);
         }
 
         if (tab === "Kontingent") {
@@ -388,8 +448,7 @@
 
           html =
             card("", `<div class="row">
-                <select id="kmonth">${months.map((m, i) => `<option value="${i + 1}"${i + 1 === period.month ? " selected" : ""}>${m}</option>`).join("")}</select>
-                <input id="kyear" type="number" value="${period.year}" style="width:100px">
+                <input id="kdate" type="date" value="${esc(payDate)}" title="Dato">
                 ${admin ? `<span class="muted" style="margin-left:8px">Kontingent pr. måned:</span>
                   <input id="kfee" type="number" min="0" step="0.01" value="${esc(getFee())}" placeholder="kr." style="width:110px">` : ""}
               </div>`) +
@@ -411,7 +470,7 @@
         }
 
         if (tab === "Kontingent-historik") {
-          let q = db.from("dues").select("*, profiles(full_name, email)").eq("paid", true)
+          let q = db.from("dues").select("*, profiles(full_name)").eq("paid", true)
             .order("created_at", { ascending: false }).limit(1000);
           if (histMember) q = q.eq("member_id", histMember);
           const members = must(await list("profiles", "id, full_name, email", "email", true));
@@ -472,13 +531,20 @@
       if (t.id === "kfee") { try { localStorage.setItem("fee", t.value); } catch {} }
     });
 
+    $("#content").addEventListener("keydown", e => {
+      if (e.key === "Enter" && e.target.dataset?.qty) e.target.blur();
+    });
+
     $("#content").addEventListener("change", e => {
       const t = e.target;
+      if (t.dataset.qty) return setQty(t.dataset.qty, t.value);
       if (t.dataset.f) saveField(t);
-      if (t.id === "kmonth" || t.id === "kyear") {
-        period.month = Number(byId("kmonth").value);
-        const y = Number(byId("kyear").value);
-        if (y >= 2000 && y <= 2100) period.year = y;
+      if (t.id === "kdate") {
+        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t.value);
+        if (!m) return;
+        payDate = t.value;
+        period.year = Number(m[1]);
+        period.month = Number(m[2]);
         showTab("Kontingent");
       }
       if (t.id === "hfilter") { histMember = t.value; showTab("Kontingent-historik"); }
@@ -504,11 +570,13 @@
         b.parentElement.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
         applyLagerFilter();
       }
-      if (ds.add) addToCart(ds.add, 1);
+      if (ds.htype) { hType = ds.htype; showTab("Handler"); }
+      if (ds.add) addToCart(ds.add, 1, true);
       if (ds.inc) addToCart(ds.inc, 1);
       if (ds.dec) addToCart(ds.dec, -1);
       if (ds.rm) { delete cart[ds.rm]; drawCart(); }
       if (ds.saveCart !== undefined) saveCart();
+      if (ds.seed !== undefined) seedItems().catch(err => say(err.message));
 
       if (ds.delStock && confirm("Slette varen?")) {
         run(db.from("stock_items").delete().eq("id", ds.delStock), "Varen er slettet");
@@ -524,7 +592,7 @@
         if (!feeInput || feeInput.value === "" || !(Number(feeInput.value) >= 0)) return say("Skriv først kontingentbeløbet øverst.");
         run(db.from("dues").insert({
           member_id: ds.markpaid, month: period.month, year: period.year,
-          amount: Number(feeInput.value), paid: true, paid_at: new Date().toISOString()
+          amount: Number(feeInput.value), paid: true, paid_at: new Date(payDate + "T12:00:00").toISOString()
         }), "Kontingent registreret");
       }
       if (ds.unpay && confirm("Fortryd betalingen?")) {
