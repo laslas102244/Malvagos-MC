@@ -85,8 +85,8 @@
     <div class="login-box">
       <h2>◆ Malvagos <b>Login</b></h2>
       <form id="login">
-        <label for="email">E-mail</label>
-        <input id="email" type="email" placeholder="E-mail" autocomplete="username" required>
+        <label for="email">Brugernavn</label>
+        <input id="email" type="text" placeholder="Brugernavn" autocomplete="username" autocapitalize="none" spellcheck="false" required>
         <label for="password">Adgangskode</label>
         <input id="password" type="password" placeholder="Adgangskode" autocomplete="current-password" required>
         <button type="submit">Log ind</button>
@@ -151,6 +151,10 @@
     let people = {};
     const descText = e => e.description ? e.description.replace(tagRe, "") : (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–");
     const byWho = e => people[e.created_by || e.user_id || e.member_id] || (e.description || "").match(tagRe)?.[1] || "–";
+    const DOMAIN = "@malvagos.app";
+    // Brugernavn → intern konto-adresse (en rigtig e-mail virker stadig)
+    const loginEmail = v => { v = v.trim().toLowerCase(); return v.includes("@") ? v : v.replace(/\s+/g, "") + DOMAIN; };
+    const userOf = e => (e || "").endsWith(DOMAIN) ? e.slice(0, -DOMAIN.length) : (e || "");
     const catOf = i => i.category || "Andet";
     const value = i => Number(i.quantity || 0) * Number(i.buy_price || 0);
     const priceOf = i => Number(cashType === "ind" ? i.sell_price : i.buy_price) || 0;
@@ -487,7 +491,7 @@
           // E-mail vises kun for admin her, så de kan se hvilken konto de giver navn til
           const rows = members.map(m => admin ? [
             { html: `<input id="mn-${esc(m.id)}" value="${esc(m.full_name || "")}" placeholder="Navn">` },
-            { html: `<span class="muted">${esc(m.email)}</span>` },
+            { html: `<span class="muted">${esc(userOf(m.email))}</span>` },
             m.id === me.id ? role(m) : { html: `<select id="mr-${esc(m.id)}">
               <option value="member"${m.role !== "admin" ? " selected" : ""}>Medlem</option>
               <option value="admin"${m.role === "admin" ? " selected" : ""}>Admin</option></select>` },
@@ -495,8 +499,8 @@
             { html: `<button type="button" data-save-member="${esc(m.id)}">Gem</button>` }
           ] : [nameOf(m), role(m), status(m)]);
 
-          html = card("Medlemmer", table(admin ? ["Navn", "Konto (kun admin)", "Rolle", kHead, ""] : ["Navn", "Rolle", kHead], rows, !admin)
-            + `<p class="note">Kontingent viser status for den aktuelle måned. Betalinger registreres under Kontingent.${admin ? " Nye medlemmer oprettes under Authentication → Users i Supabase og vises her automatisk. Giv dem et navn her – det er navnet alle andre ser." : ""}</p>`);
+          html = card("Medlemmer", table(admin ? ["Navn", "Brugernavn (kun admin)", "Rolle", kHead, ""] : ["Navn", "Rolle", kHead], rows, !admin)
+            + `<p class="note">Kontingent viser status for den aktuelle måned. Betalinger registreres under Kontingent.${admin ? " Nye medlemmer oprettes under Authentication → Users i Supabase med e-mailen brugernavn@malvagos.app (sæt kryds i Auto Confirm User) og vises her automatisk. Giv dem et navn her – det er navnet alle andre ser." : ""}</p>`);
         }
 
         if (tab === "Kontingent") {
@@ -569,7 +573,7 @@
     $("#login").addEventListener("submit", async e => {
       e.preventDefault();
       say("");
-      const { error } = await db.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
+      const { error } = await db.auth.signInWithPassword({ email: loginEmail($("#email").value), password: $("#password").value });
       if (error) say("Login mislykkedes: " + error.message);
     });
     $("#logout").addEventListener("click", () => db.auth.signOut());
