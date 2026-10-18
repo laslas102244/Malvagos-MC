@@ -99,6 +99,7 @@
     <header class="topbar">
       <h1>◆ Malvagos <b>System</b></h1>
       <div class="meta">
+        <span id="kasse" style="font-weight:700"></span>
         <span id="stats"></span>
         <span id="who"></span>
         <button id="logout" class="ghost" type="button">Log ud</button>
@@ -174,6 +175,50 @@
       $("#stats").textContent = `${stock.length} varer · lagerværdi ${money(stock.reduce((s, i) => s + value(i), 0))}`;
     }
 
+    // ---------- Klubkasse ----------
+    // Saldo = startsaldo (sat af admin) + alle indbetalinger − alle udbetalinger
+    let kasse = { opening: 0, flow: 0, missing: false };
+
+    async function allEntries() {
+      let out = [], from = 0;
+      while (true) {
+        const { data, error } = await db.from("cash_entries").select("type, amount").order("created_at").range(from, from + 999);
+        if (error) throw error;
+        out.push(...data);
+        if (data.length < 1000) break;
+        from += 1000;
+      }
+      return out;
+    }
+
+    async function loadBalance() {
+      try {
+        const o = await db.from("club_balance").select("opening").eq("id", 1).maybeSingle();
+        kasse.missing = !!o.error;
+        kasse.opening = Number(o.data?.opening || 0);
+        const entries = await allEntries();
+        kasse.flow = entries.reduce((s, e) => s + (e.type === "ind" ? 1 : -1) * Number(e.amount || 0), 0);
+      } catch (err) { return; }
+      const bal = kasse.opening + kasse.flow;
+      $("#kasse").textContent = "Klubkasse: " + money(bal);
+      $("#kasse").style.color = bal < 0 ? "#b42318" : "#1a7f37";
+      const big = byId("kassebig");
+      if (big) { big.textContent = money(bal); big.style.color = bal < 0 ? "#b42318" : "#1a7f37"; }
+      const warn = byId("kassewarn");
+      if (warn) warn.classList.toggle("hidden", !kasse.missing);
+    }
+
+    async function setBalance() {
+      const inp = byId("kset");
+      if (!inp || inp.value === "" || isNaN(Number(inp.value))) return say("Skriv den nye saldo først.");
+      const opening = Number(inp.value) - kasse.flow;
+      const { error } = await db.from("club_balance").upsert({ id: 1, opening });
+      if (error) return say(error.message);
+      inp.value = "";
+      await loadBalance();
+      say("Klubkassen er opdateret", "success");
+    }
+
     async function start(session) {
       const thisStart = ++startCounter;
       me = session?.user || null;
@@ -183,7 +228,7 @@
 
       if (!me) {
         $("#content").innerHTML = ""; $("#tabs").innerHTML = "";
-        $("#who").textContent = ""; $("#stats").textContent = "";
+        $("#who").textContent = ""; $("#stats").textContent = ""; $("#kasse").textContent = "";
         say("");
         return;
       }
@@ -206,6 +251,13 @@
       const sum = t => entries.filter(e => e.type === t).reduce((s, e) => s + Number(e.amount || 0), 0);
       const inn = sum("ind"), ud = sum("ud");
       return `
+        <section class="card">
+          <div class="row" style="justify-content:space-between">
+            <div><small class="muted">Klubkasse</small><div id="kassebig" class="big">…</div></div>
+            ${isAdmin() ? `<div class="row"><input id="kset" type="number" step="0.01" placeholder="Ny saldo (kr.)" style="width:150px"><button type="button" data-set-balance>Sæt saldo</button></div>` : ""}
+          </div>
+          <p id="kassewarn" class="note hidden">Klubkassen kan ikke gemmes endnu – kør SQL-opdateringen for tabellen club_balance i Supabase.</p>
+        </section>
         <section class="card">
           <div class="seg">
             <button type="button" class="${cashType === "ind" ? "on" : ""}" data-type="ind">Ind – penge ind (−lager)</button>
@@ -368,10 +420,13 @@
         }
 
         if (tab === "Handler") {
-          const [entries, stock] = (await Promise.all([
+          const [entries, stock, people] = (await Promise.all([
             db.from("cash_entries").select("*, stock_items(name)").order("created_at", { ascending: false }).limit(1000),
-            list("stock_items", "*", "name", true)
+            list("stock_items", "*", "name", true),
+            list("profiles", "id, full_name", "email", true)
           ])).map(must);
+          const who = Object.fromEntries(people.map(p => [p.id, nameOf(p)]));
+          const byWho = e => who[e.created_by || e.user_id || e.member_id] || "–";
           setStats(stock);
           const shown = hType === "alle" ? entries : entries.filter(e => e.type === hType);
           const sum = t => entries.filter(e => e.type === t).reduce((s, e) => s + Number(e.amount || 0), 0);
@@ -381,8 +436,9 @@
               ${[["alle", "Alle"], ["ind", "Ind"], ["ud", "Ud"]].map(([k, l]) => `<button type="button" class="chip${hType === k ? " on" : ""}" data-htype="${k}">${l}</button>`).join("")}
             </div>`) +
             statCard([["Handler", String(entries.length), "#172033"], ["Ind i alt", money(inn), "#1a7f37"], ["Ud i alt", money(ud), "#b42318"], ["Saldo", money(inn - ud), "#b8860b"]]) +
-            card("Færdige handler", table(["Tid", "Type", "Varer", "Beløb"], shown.slice(0, 300).map(e => [
+            card("Færdige handler", table(["Tid", "Af", "Type", "Varer", "Beløb"], shown.slice(0, 300).map(e => [
               dt(e.created_at),
+              byWho(e),
               { html: e.type === "ind" ? '<span class="pos">Ind</span>' : '<span class="neg">Ud</span>' },
               e.description || (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–"),
               { html: `<span class="${e.type === "ind" ? "pos" : "neg"}">${e.type === "ind" ? "+" : "−"}${esc(money(e.amount))}</span>` }
@@ -488,6 +544,7 @@
         }
 
         out.innerHTML = html;
+        loadBalance();
         if (tab === "Ind/ud") { drawTiles(); drawCart(); }
         if (tab === "Lager") applyLagerFilter();
       } catch (err) {
@@ -576,6 +633,7 @@
       if (ds.dec) addToCart(ds.dec, -1);
       if (ds.rm) { delete cart[ds.rm]; drawCart(); }
       if (ds.saveCart !== undefined) saveCart();
+      if (ds.setBalance !== undefined) setBalance();
       if (ds.seed !== undefined) seedItems().catch(err => say(err.message));
 
       if (ds.delStock && confirm("Slette varen?")) {
