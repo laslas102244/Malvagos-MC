@@ -147,6 +147,10 @@
     const dt = v => v ? new Date(v).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "–";
     const isAdmin = () => profile?.role === "admin";
     const nameOf = p => p?.full_name || "Uden navn";
+    const tagRe = /\s*‹af:([^›]*)›\s*$/;
+    let people = {};
+    const descText = e => e.description ? e.description.replace(tagRe, "") : (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–");
+    const byWho = e => people[e.created_by || e.user_id || e.member_id] || (e.description || "").match(tagRe)?.[1] || "–";
     const catOf = i => i.category || "Andet";
     const value = i => Number(i.quantity || 0) * Number(i.buy_price || 0);
     const priceOf = i => Number(cashType === "ind" ? i.sell_price : i.buy_price) || 0;
@@ -273,10 +277,11 @@
           <button type="button" id="savebtn" data-save-cart></button>
         </section>` +
         statCard([["Ind i alt", money(inn), "#1a7f37"], ["Ud i alt", money(ud), "#b42318"], ["Saldo", money(inn - ud), "#b8860b"]]) +
-        card("", table(["Tid", "Type", "Indhold"], entries.slice(0, 100).map(e => [
+        card("", table(["Tid", "Af", "Type", "Indhold"], entries.slice(0, 100).map(e => [
           dt(e.created_at),
+          byWho(e),
           { html: e.type === "ind" ? '<span class="pos">Ind</span>' : '<span class="neg">Ud</span>' },
-          `${e.description || (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–")} → ${money(e.amount)}`
+          `${descText(e)} → ${money(e.amount)}`
         ])));
     }
 
@@ -333,7 +338,7 @@
       const { error } = await db.rpc("register_cart", {
         p_type: cashType,
         p_items: lines.map(l => ({ id: l.i.id, qty: l.qty })),
-        p_desc: lines.map(l => `${l.qty}× ${l.i.name}`).join(", ")
+        p_desc: lines.map(l => `${l.qty}× ${l.i.name}`).join(", ") + ` ‹af:${nameOf(profile)}›`
       });
       if (error) return say(error.message);
       cart = {};
@@ -409,23 +414,24 @@
         let html = "";
 
         if (tab === "Ind/ud") {
-          const [entries, stock] = (await Promise.all([
+          const [entries, stock, ppl] = (await Promise.all([
             db.from("cash_entries").select("*, stock_items(name)").order("created_at", { ascending: false }).limit(1000),
-            list("stock_items", "*", "name", true)
+            list("stock_items", "*", "name", true),
+            list("profiles", "id, full_name", "email", true)
           ])).map(must);
+          people = Object.fromEntries(ppl.map(p => [p.id, nameOf(p)]));
           stockCache = stock;
           setStats(stock);
           html = cashHtml(entries);
         }
 
         if (tab === "Handler") {
-          const [entries, stock, people] = (await Promise.all([
+          const [entries, stock, ppl] = (await Promise.all([
             db.from("cash_entries").select("*, stock_items(name)").order("created_at", { ascending: false }).limit(1000),
             list("stock_items", "*", "name", true),
             list("profiles", "id, full_name", "email", true)
           ])).map(must);
-          const who = Object.fromEntries(people.map(p => [p.id, nameOf(p)]));
-          const byWho = e => who[e.created_by || e.user_id || e.member_id] || "–";
+          people = Object.fromEntries(ppl.map(p => [p.id, nameOf(p)]));
           setStats(stock);
           const shown = hType === "alle" ? entries : entries.filter(e => e.type === hType);
           const sum = t => entries.filter(e => e.type === t).reduce((s, e) => s + Number(e.amount || 0), 0);
@@ -439,7 +445,7 @@
               dt(e.created_at),
               byWho(e),
               { html: e.type === "ind" ? '<span class="pos">Ind</span>' : '<span class="neg">Ud</span>' },
-              e.description || (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–"),
+              descText(e),
               { html: `<span class="${e.type === "ind" ? "pos" : "neg"}">${e.type === "ind" ? "+" : "−"}${esc(money(e.amount))}</span>` }
             ])));
         }
