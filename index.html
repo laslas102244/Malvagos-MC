@@ -496,7 +496,7 @@
               <option value="member"${m.role !== "admin" ? " selected" : ""}>Medlem</option>
               <option value="admin"${m.role === "admin" ? " selected" : ""}>Admin</option></select>` },
             status(m),
-            { html: `<button type="button" data-save-member="${esc(m.id)}">Gem</button>` }
+            { html: `<button type="button" data-save-member="${esc(m.id)}">Gem</button>` + (m.id === me.id ? "" : ` <button type="button" class="danger sm" data-del-member="${esc(m.id)}">Slet</button>`) }
           ] : [nameOf(m), role(m), status(m)]);
 
           html = card("Medlemmer", table(admin ? ["Navn", "Brugernavn (kun admin)", "Rolle", kHead, ""] : ["Navn", "Rolle", kHead], rows, !admin)
@@ -645,6 +645,15 @@
       if (ds.setBalance !== undefined) setBalance();
       if (ds.seed !== undefined) seedItems().catch(err => say(err.message));
 
+      if (ds.delMember) {
+        const nm = byId("mn-" + ds.delMember)?.value || "brugeren";
+        if (confirm(`Slette ${nm}? Brugeren og alle hans kontingentbetalinger fjernes, og det kan ikke fortrydes.`)) {
+          db.rpc("delete_member", { p_id: ds.delMember }).then(({ error }) => {
+            if (error) return say(error.message);
+            showTab("Medlemmer").then(() => say("Brugeren er slettet", "success"));
+          });
+        }
+      }
       if (ds.delStock && confirm("Slette varen?")) {
         run(db.from("stock_items").delete().eq("id", ds.delStock), "Varen er slettet");
       }
