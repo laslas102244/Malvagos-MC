@@ -6,175 +6,39 @@
   <title>Malvagos</title>
   <style>
     * { box-sizing: border-box; }
-
-    body {
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      background: #f7f6f2;
-      color: #172033;
-      font: 16px Arial, sans-serif;
-    }
-
-    input, button, select {
-      font: inherit;
-      padding: 10px;
-      border: 1px solid #ccd2dc;
-      border-radius: 7px;
-    }
-
-    button {
-      cursor: pointer;
-      background: #174ea6;
-      color: white;
-      border: 0;
-    }
-
+    body { min-height: 100vh; margin: 0; background: #f7f6f2; color: #172033; font: 16px Arial, sans-serif; }
+    input, button, select { font: inherit; padding: 10px; border: 1px solid #ccd2dc; border-radius: 7px; }
+    button { cursor: pointer; background: #174ea6; color: white; border: 0; }
     button.secondary { background: #586579; }
 
-    #auth {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 16px;
-    }
-
-    .login-box {
-      width: min(100%, 300px);
-      padding: 14px;
-      background: white;
-      border: 1px solid #e8e5df;
-      border-radius: 9px;
-    }
-
-    .login-box h2 {
-      margin: 0 0 12px;
-      font-size: 16px;
-      color: #b98100;
-    }
-
+    #auth { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+    .login-box { width: min(100%, 300px); padding: 14px; background: white; border: 1px solid #e8e5df; border-radius: 9px; }
+    .login-box h2 { margin: 0 0 12px; font-size: 16px; color: #b98100; }
     .login-box h2 b { color: #172033; }
     .login-box h2 span { color: #d99a16; }
+    #login { display: grid; gap: 6px; }
+    #login label { margin-top: 3px; color: #666; font-size: 11px; }
+    #login input { width: 100%; margin: 0; padding: 9px; border: 1px solid #e5e2dc; border-radius: 6px; font-size: 13px; }
+    #login button { width: 100%; margin-top: 2px; padding: 9px; color: #17130a; background: #bf890b; border-radius: 6px; font-size: 13px; }
+    .login-box small { display: block; margin-top: 10px; color: #777; font-size: 10px; }
 
-    #login {
-      display: grid;
-      gap: 6px;
-    }
-
-    #login label {
-      margin-top: 3px;
-      color: #666;
-      font-size: 11px;
-    }
-
-    #login input {
-      width: 100%;
-      margin: 0;
-      padding: 9px;
-      border: 1px solid #e5e2dc;
-      border-radius: 6px;
-      font-size: 13px;
-    }
-
-    #login button {
-      width: 100%;
-      margin-top: 2px;
-      padding: 9px;
-      color: #17130a;
-      background: #bf890b;
-      border-radius: 6px;
-      font-size: 13px;
-    }
-
-    .login-box small {
-      display: block;
-      margin-top: 10px;
-      color: #777;
-      font-size: 10px;
-    }
-
-    .app-shell {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 24px 16px;
-    }
-
-    .app-header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .app-header h1 {
-      margin: 0;
-      font-size: 26px;
-    }
-
-    input:not(#login input), select {
-      margin: 4px;
-    }
-
-    .card {
-      overflow-x: auto;
-      margin: 12px 0;
-      padding: 18px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px #0001;
-    }
-
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin: 16px 0;
-    }
-
-    nav button {
-      background: #e4e9f1;
-      color: #172033;
-    }
-
-    nav button.active {
-      background: #174ea6;
-      color: white;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #e4e7ec;
-      text-align: left;
-    }
-
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
+    .app-shell { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+    .app-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+    .app-header h1 { margin: 0; font-size: 26px; }
+    .card input, .card select { margin: 4px; }
+    .card { overflow-x: auto; margin: 12px 0; padding: 18px; background: white; border-radius: 10px; box-shadow: 0 2px 8px #0001; }
+    .card h2 { margin-top: 0; font-size: 18px; }
+    nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0; }
+    nav button { background: #e4e9f1; color: #172033; }
+    nav button.active { background: #174ea6; color: white; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { padding: 10px; border-bottom: 1px solid #e4e7ec; text-align: left; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; }
     .muted { color: #667085; }
     .hidden { display: none !important; }
 
-    #message {
-      position: fixed;
-      z-index: 2;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 10px;
-      white-space: pre-wrap;
-      background: white;
-      border-radius: 6px;
-    }
-
+    #message { position: fixed; z-index: 2; top: 12px; left: 50%; transform: translateX(-50%); padding: 10px; white-space: pre-wrap; background: white; border-radius: 6px; box-shadow: 0 2px 8px #0002; }
+    #message:empty { display: none; }
     #message.error { color: #a11; }
     #message.success { color: #176b37; }
   </style>
@@ -187,25 +51,9 @@
       <h2><span>◆</span> Malvagos <b>Login</b></h2>
       <form id="login">
         <label for="email">E-mail</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="E-mail"
-          autocomplete="username"
-          required
-        >
-
+        <input id="email" name="email" type="email" placeholder="E-mail" autocomplete="username" required>
         <label for="password">Adgangskode</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="Adgangskode"
-          autocomplete="current-password"
-          required
-        >
-
+        <input id="password" name="password" type="password" placeholder="Adgangskode" autocomplete="current-password" required>
         <button type="submit">Log ind</button>
       </form>
       <small>Kun for ansatte.</small>
@@ -218,7 +66,7 @@
         <h1>Malvagos</h1>
         <div class="row">
           <span id="who"></span>
-          <button id="logout" class="secondary" type="button">Log ud</button>
+          <button id="logout" class="secondary" type="button" style="margin-left:8px">Log ud</button>
         </div>
       </header>
       <nav id="tabs"></nav>
@@ -228,32 +76,24 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Supabase Project URL og publishable/anon key
     const SUPABASE_URL = "https://awkenudlyzexprjqpvcu.supabase.co";
     const SUPABASE_KEY = "sb_publishable_4njY-sWB9J2UTcmNmQuuDA_b5bLC4Vp";
-
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const tabs = ["Ind/ud", "Kunder", "Lager", "Handler", "Kontingent", "Medlemmer"];
-    let me = null;
-    let profile = null;
-    let currentTab = "Ind/ud";
-    let startCounter = 0;
+    const months = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
+    let me = null, profile = null, currentTab = "Ind/ud", startCounter = 0;
 
     const $ = selector => document.querySelector(selector);
 
-    const esc = value => String(value ?? "").replace(/[&<>"']/g, character => ({
-  "&": "&",
-  "<": "<",
-  ">": ">",
-  '"': """,
-  "'": "'"
-})[character]);
+    const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[c]);
 
-    const money = value => Number(value || 0).toLocaleString("da-DK", {
-      style: "currency",
-      currency: "DKK"
-    });
+    const money = value => Number(value || 0).toLocaleString("da-DK", { style: "currency", currency: "DKK" });
+    const dt = value => value ? new Date(value).toLocaleString("da-DK", { dateStyle: "short", timeStyle: "short" }) : "";
+    const isAdmin = () => profile?.role === "admin";
+    const nameOf = p => p?.full_name || p?.email || "–";
 
     function say(text = "", type = "error") {
       const message = $("#message");
@@ -261,25 +101,21 @@
       message.className = text ? type : "";
     }
 
+    // Værdier escapes altid, undtagen objekter af formen { html: "..." }
+    const cell = v => (v && v.html !== undefined) ? v.html : esc(v);
+
     function table(headers, rows) {
       if (!rows.length) return '<p class="muted">Ingen oplysninger endnu.</p>';
-
       return `
         <table>
-          <thead>
-            <tr>${headers.map(header => `<th>${esc(header)}</th>`).join("")}</tr>
-          </thead>
-          <tbody>
-            ${rows.map(row => `
-              <tr>${row.map(value => `<td>${esc(value)}</td>`).join("")}</tr>
-            `).join("")}
-          </tbody>
+          <thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead>
+          <tbody>${rows.map(r => `<tr>${r.map(v => `<td>${cell(v)}</td>`).join("")}</tr>`).join("")}</tbody>
         </table>`;
     }
 
-    function isAdmin() {
-      return profile?.role === "admin";
-    }
+    const must = result => { if (result.error) throw result.error; return result.data || []; };
+    const list = (t, cols = "*", order = "created_at", asc = false) =>
+      db.from(t).select(cols).order(order, { ascending: asc });
 
     async function start(session) {
       const thisStart = ++startCounter;
@@ -297,441 +133,195 @@
         return;
       }
 
-      const { data, error } = await db
-        .from("profiles")
-        .select("id, full_name, role")
-        .eq("id", me.id)
-        .maybeSingle();
+      const { data, error } = await db.from("profiles")
+        .select("id, full_name, role").eq("id", me.id).maybeSingle();
 
       if (thisStart !== startCounter) return;
-
-      if (error) {
-        say("Kunne ikke hente din profil: " + error.message);
-        return;
-      }
-
-      if (!data) {
-        say("Din profil blev ikke fundet. Bed administratoren kontrollere Supabase-profiltabellen.");
-        return;
-      }
+      if (error) return say("Kunne ikke hente din profil: " + error.message);
+      if (!data) return say("Din profil blev ikke fundet. Bed administratoren kontrollere Supabase-profiltabellen.");
 
       profile = data;
-      say("", "");
-
-      $("#who").textContent =
-        `${profile.full_name || me.email} (${isAdmin() ? "admin" : "medlem"})`;
-
-      $("#tabs").innerHTML = tabs.map(tab => `
-        <button type="button" data-tab="${esc(tab)}"
-          class="${tab === currentTab ? "active" : ""}">${esc(tab)}</button>
-      `).join("");
+      say("");
+      $("#who").textContent = `${profile.full_name || me.email} (${isAdmin() ? "admin" : "medlem"})`;
+      $("#tabs").innerHTML = tabs.map(tab =>
+        `<button type="button" data-tab="${esc(tab)}" class="${tab === currentTab ? "active" : ""}">${esc(tab)}</button>`
+      ).join("");
 
       await showTab(currentTab);
     }
 
+    const card = (title, body) => `<section class="card"><h2>${title}</h2>${body}</section>`;
+    const form = (name, fields, label = "Gem") =>
+      `<form data-form="${name}" class="row">${fields}<button type="submit">${label}</button></form>`;
+
     async function showTab(tab) {
       currentTab = tab;
-
-      $("#tabs").querySelectorAll("button").forEach(button => {
-        button.classList.toggle("active", button.dataset.tab === tab);
-      });
+      document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
 
       const out = $("#content");
       out.innerHTML = '<section class="card">Henter…</section>';
       say("");
+      const admin = isAdmin();
 
       try {
+        let html = "";
+
         if (tab === "Ind/ud") {
-          const [entriesResult, itemsResult] = await Promise.all([
-            db.from("cash_entries").select("*").order("created_at", { ascending: false }),
+          const [entries, items] = (await Promise.all([
+            list("cash_entries"),
             db.from("cash_items").select("*").eq("active", true).order("name")
-          ]);
+          ])).map(must);
 
-          if (entriesResult.error) throw entriesResult.error;
-          if (itemsResult.error) throw itemsResult.error;
+          html =
+            card("Registrér ind- eller udbetaling", form("cash", `
+              <select name="type"><option value="ind">Ind</option><option value="ud">Ud</option></select>
+              <input name="description" placeholder="Hvad drejer det sig om?" required>
+              <input name="amount" type="number" min="0.01" step="0.01" placeholder="Beløb i kr." required>`)) +
+            (admin ? card("Prisliste for Ind/ud",
+              form("cashitem", `
+                <input name="name" placeholder="Navn på ting" required>
+                <input name="price" type="number" min="0" step="0.01" placeholder="Pris" required>`, "Tilføj") +
+              items.map(i => `
+                <div class="row">
+                  <span>${esc(i.name)}</span>
+                  <input id="cp-${esc(i.id)}" type="number" min="0" step="0.01" value="${esc(i.price)}">
+                  <button type="button" data-save-cash="${esc(i.id)}">Gem pris</button>
+                </div>`).join("")) : "") +
+            card("Ind- og udbetalinger", table(["Dato", "Type", "Beskrivelse", "Beløb"],
+              entries.map(e => [dt(e.created_at), e.type, e.description, money(e.amount)])));
+        }
 
-          const entries = entriesResult.data || [];
-          const items = itemsResult.data || [];
-
-          out.innerHTML = `
-            <section class="card">
-              <h2>Registrér ind- eller udbetaling</h2>
-              <form data-form="cash" class="row">
-                <select name="type">
-                  <option value="ind">Ind</option>
-                  <option value="ud">Ud</option>
-                </select>
-                <input name="description" placeholder="Hvad drejer det sig om?" required>
-                <input name="amount" type="number" min="0.01" step="0.01"
-                  placeholder="Beløb i kr." required>
-                <button type="submit">Gem</button>
-              </form>
-            </section>
-
-            ${isAdmin() ? `
-              <section class="card">
-                <h2>Prisliste for Ind/ud</h2>
-                <form data-form="cashitem" class="row">
-                  <input name="name" placeholder="Navn på ting" required>
-                  <input name="price" type="number" min="0" step="0.01"
-                    placeholder="Pris" required>
-                  <button type="submit">Tilføj</button>
-                </form>
-                ${items.map(item => `
-                  <div class="row">
-                    <span>${esc(item.name)}</span>
-                    <input id="cp-${esc(item.id)}" type="number" min="0" step="0.01"
-                      value="${esc(item.price)}">
-                    <button type="button" data-save-cash="${esc(item.id)}">Gem pris</button>
-                  </div>
-                `).join("")}
-              </section>
-            ` : ""}
-
-            <section class="card">
-              <h2>Ind- og udbetalinger</h2>
-              ${table(["Dato", "Type", "Beskrivelse", "Beløb"],
-                entries.map(entry => [
-                  entry.created_at, entry.type, entry.description, money(entry.amount)
-                ]))}
-            </section>`;
+        if (tab === "Kunder") {
+          const customers = must(await list("customers"));
+          html =
+            (admin ? card("Tilføj kunde", form("customer", `
+              <input name="name" placeholder="Navn" required>
+              <input name="phone" placeholder="Telefon">
+              <input name="note" placeholder="Note">`, "Tilføj")) : "") +
+            card("Kunder", table(["Navn", "Telefon", "Note"],
+              customers.map(c => [c.name, c.phone || "–", c.note || "–"])));
         }
 
         if (tab === "Lager") {
-          const { data, error } = await db
-            .from("stock_items").select("*").order("name");
+          const stock = must(await list("stock_items", "*", "name", true));
+          html =
+            (admin ? card("Tilføj lagervare", form("stock", `
+              <input name="name" placeholder="Varenavn" required>
+              <input name="quantity" type="number" min="0" step="1" placeholder="Antal" required>`, "Tilføj")) : "") +
+            card("Lager", table(["Vare", "Antal"], stock.map(i => [i.name, i.quantity])));
+        }
 
-          if (error) throw error;
+        if (tab === "Handler") {
+          const [customers, deals] = (await Promise.all([
+            list("customers", "id, name", "name", true),
+            list("deals", "*, customers(name)")
+          ])).map(must);
+          html =
+            (admin ? card("Ny handel", form("deal", `
+              <select name="customer_id" required>
+                <option value="">Vælg kunde</option>
+                ${customers.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}
+              </select>
+              <input name="description" placeholder="Beskrivelse" required>
+              <input name="amount" type="number" min="0" step="0.01" placeholder="Beløb i kr." required>
+              <select name="status">
+                <option value="open">Åben</option><option value="done">Afsluttet</option>
+              </select>`, "Tilføj")) : "") +
+            card("Handler", table(["Dato", "Kunde", "Beskrivelse", "Beløb", "Status"],
+              deals.map(d => [dt(d.created_at), d.customers?.name || "–", d.description, money(d.amount),
+                d.status === "done" ? "Afsluttet" : "Åben"])));
+        }
 
-          out.innerHTML = `
-            ${isAdmin() ? `
-              <section class="card">
-                <h2>Tilføj lagervare</h2>
-                <form data-form="stock" class="row">
-                  <input name="name" placeholder="Varenavn" required>
-                  <input name="quantity" type="number"
+        if (tab === "Kontingent") {
+          const [members, dues] = (await Promise.all([
+            list("profiles", "id, full_name, email", "email", true),
+            list("dues", "*, profiles(full_name, email)")
+          ])).map(must);
+          html =
+            (admin ? card("Registrér kontingent", form("due", `
+              <select name="member_id" required>
+                <option value="">Vælg medlem</option>
+                ${members.map(m => `<option value="${esc(m.id)}">${esc(nameOf(m))}</option>`).join("")}
+              </select>
+              <select name="month">
+                ${months.map((m, i) => `<option value="${i + 1}">${m}</option>`).join("")}
+              </select>
+              <input name="year" type="number" value="${new Date().getFullYear()}" required>
+              <input name="amount" type="number" min="0" step="0.01" placeholder="Beløb i kr." required>`, "Tilføj")) : "") +
+            card("Kontingent", table(["Medlem", "Måned", "År", "Beløb", "Status"],
+              dues.map(d => [nameOf(d.profiles), months[(d.month || 1) - 1], d.year ?? "–", money(d.amount),
+                d.paid ? "Betalt" : (admin
+                  ? { html: `<button type="button" data-pay="${esc(d.id)}">Markér betalt</button>` }
+                  : "Ikke betalt")])));
+        }
 
-                  <input name="quantity" type="number" id="lagerAntalInput" placeholder="Antal" min="0" style="display:none;">
+        if (tab === "Medlemmer") {
+          const members = must(await list("profiles", "*", "email", true));
+          html = card("Medlemmer", table(["Navn", "E-mail", "Rolle"],
+            members.map(m => [m.full_name || "–", m.email, m.role === "admin" ? "Admin" : "Medlem"])));
+        }
 
-<!-- ======================= LAGER SEKTION ======================= -->
-<div id="lagerSection" class="section" style="display:none;">
-  <h2>Lager</h2>
-  <form id="lagerForm">
-    <input type="hidden" id="lagerId">
-    <input type="text" id="lagerNavn" placeholder="Varenavn" required>
-    <input type="number" id="lagerAntal" placeholder="Antal" min="0" required>
-    <input type="number" id="lagerPris" placeholder="Pris" min="0" step="0.01" required>
-    <button type="submit">Gem vare</button>
-    <button type="button" id="lagerAnnuller" style="display:none;">Annuller redigering</button>
-  </form>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Navn</th>
-        <th>Antal</th>
-        <th>Pris</th>
-        <th>Handlinger</th>
-      </tr>
-    </thead>
-    <tbody id="lagerTabel"></tbody>
-  </table>
-</div>
-
-<!-- ======================= KUNDER SEKTION ======================= -->
-<div id="kunderSection" class="section" style="display:none;">
-  <h2>Kunder</h2>
-  <form id="kundeForm">
-    <input type="hidden" id="kundeId">
-    <input type="text" id="kundeNavn" placeholder="Navn" required>
-    <input type="text" id="kundeTelefon" placeholder="Telefon">
-    <input type="email" id="kundeEmail" placeholder="Email">
-    <button type="submit">Gem kunde</button>
-    <button type="button" id="kundeAnnuller" style="display:none;">Annuller redigering</button>
-  </form>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Navn</th>
-        <th>Telefon</th>
-        <th>Email</th>
-        <th>Handlinger</th>
-      </tr>
-    </thead>
-    <tbody id="kunderTabel"></tbody>
-  </table>
-</div>
-
-<!-- ======================= HANDLER (SALG) SEKTION ======================= -->
-<div id="handlerSection" class="section" style="display:none;">
-  <h2>Handler / Salg</h2>
-  <form id="handelForm">
-    <select id="handelKunde" required>
-      <option value="">Vælg kunde</option>
-    </select>
-    <select id="handelVare" required>
-      <option value="">Vælg vare</option>
-    </select>
-    <input type="number" id="handelAntal" placeholder="Antal" min="1" required>
-    <button type="submit">Registrer salg</button>
-  </form>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Dato</th>
-        <th>Kunde</th>
-        <th>Vare</th>
-        <th>Antal</th>
-        <th>Total</th>
-        <th>Handlinger</th>
-      </tr>
-    </thead>
-    <tbody id="handlerTabel"></tbody>
-  </table>
-</div>
-
-<!-- ======================= KONTINGENT SEKTION ======================= -->
-<div id="kontingentSection" class="section" style="display:none;">
-  <h2>Kontingent</h2>
-  <form id="kontingentForm">
-    <select id="kontingentMedlem" required>
-      <option value="">Vælg medlem</option>
-    </select>
-    <select id="kontingentMaaned" required>
-      <option value="1">Januar</option>
-      <option value="2">Februar</option>
-      <option value="3">Marts</option>
-      <option value="4">April</option>
-      <option value="5">Maj</option>
-      <option value="6">Juni</option>
-      <option value="7">Juli</option>
-      <option value="8">August</option>
-      <option value="9">September</option>
-      <option value="10">Oktober</option>
-      <option value="11">November</option>
-      <option value="12">December</option>
-    </select>
-    <input type="number" id="kontingentAar" placeholder="År" value="2026" required>
-    <button type="submit">Registrer kontingent</button>
-  </form>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Medlem</th>
-        <th>Måned</th>
-        <th>År</th>
-        <th>Status</th>
-        <th>Handlinger</th>
-      </tr>
-    </thead>
-    <tbody id="kontingentTabel"></tbody>
-  </table>
-</div>
-
-<!-- ======================= MEDLEMMER SEKTION ======================= -->
-<div id="medlemmerSection" class="section" style="display:none;">
-  <h2>Medlemmer</h2>
-  <form id="medlemForm">
-    <input type="hidden" id="medlemId">
-    <input type="text" id="medlemNavn" placeholder="Navn" required>
-    <input type="text" id="medlemRolle" placeholder="Rolle">
-    <input type="date" id="medlemIndmeldt">
-    <button type="submit">Gem medlem</button>
-    <button type="button" id="medlemAnnuller" style="display:none;">Annuller redigering</button>
-  </form>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Navn</th>
-        <th>Rolle</th>
-        <th>Indmeldt</th>
-        <th>Handlinger</th>
-      </tr>
-    </thead>
-    <tbody id="medlemmerTabel"></tbody>
-  </table>
-</div>
-
-<script>
-/* =========================================================
-   SUPABASE OPSÆTNING
-   Udskift disse to linjer med dine egne, hvis de ikke allerede
-   er sat tidligere i filen.
-   ========================================================= */
-const SUPABASE_URL = "https://DIT-PROJEKT.supabase.co";
-const SUPABASE_ANON_KEY = "DIN-ANON-KEY";
-
-// Hvis supabase-client allerede er oprettet tidligere i filen
-// (f.eks. som "supabase" eller "client"), så brug den i stedet
-// for at oprette en ny her. Fjern linjen nedenfor hvis det er tilfældet.
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/* =========================================================
-   LAGER
-   Tabel: lager (id, navn, antal, pris)
-   ========================================================= */
-const lagerForm = document.getElementById('lagerForm');
-const lagerTabel = document.getElementById('lagerTabel');
-const lagerAnnuller = document.getElementById('lagerAnnuller');
-
-async function hentLager() {
-  const { data, error } = await supabaseClient
-    .from('lager')
-    .select('*')
-    .order('navn', { ascending: true });
-
-  if (error) {
-    console.error('Fejl ved hentning af lager:', error);
-    return;
-  }
-
-  lagerTabel.innerHTML = '';
-  data.forEach(vare => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${vare.navn}</td>
-      <td>${vare.antal}</td>
-      <td>${vare.pris.toFixed(2)} kr</td>
-      <td>
-        <button onclick="redigerLager('${vare.id}')">Rediger</button>
-        <button onclick="sletLager('${vare.id}')">Slet</button>
-      </td>
-    `;
-    lagerTabel.appendChild(row);
-  });
-
-  opdaterVareDropdown(data);
-}
-
-lagerForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const id = document.getElementById('lagerId').value;
-  const navn = document.getElementById('lagerNavn').value;
-  const antal = parseInt(document.getElementById('lagerAntal').value);
-  const pris = parseFloat(document.getElementById('lagerPris').value);
-
-  if (id) {
-    const { error } = await supabaseClient
-      .from('lager')
-      .update({ navn, antal, pris })
-      .eq('id', id);
-
-    if (error) {
-      alert('Fejl ved opdatering: ' + error.message);
-      return;
+        out.innerHTML = html;
+      } catch (err) {
+        out.innerHTML = card("Noget gik galt", `<p>${esc(err.message || err)}</p>`);
+      }
     }
-  } else {
-    const { error } = await supabaseClient
-      .from('lager')
-      .insert([{ navn, antal, pris }]);
 
-    if (error) {
-      alert('Fejl ved oprettelse: ' + error.message);
-      return;
+    // Kør en database-handling, vis resultat og genindlæs fanen
+    async function run(query, okText = "Gemt") {
+      const { error } = await query;
+      if (error) return say(error.message);
+      await showTab(currentTab);
+      say(okText, "success");
     }
-  }
 
-  lagerForm.reset();
-  document.getElementById('lagerId').value = '';
-  lagerAnnuller.style.display = 'none';
-  hentLager();
-});
+    $("#login").addEventListener("submit", async e => {
+      e.preventDefault();
+      say("");
+      const { error } = await db.auth.signInWithPassword({
+        email: $("#email").value.trim(),
+        password: $("#password").value
+      });
+      if (error) say("Login mislykkedes: " + error.message);
+    });
 
-async function redigerLager(id) {
-  const { data, error } = await supabaseClient
-    .from('lager')
-    .select('*')
-    .eq('id', id)
-    .single();
+    $("#logout").addEventListener("click", () => db.auth.signOut());
 
-  if (error) {
-    alert('Fejl ved hentning af vare: ' + error.message);
-    return;
-  }
+    $("#tabs").addEventListener("click", e => {
+      const tab = e.target.dataset?.tab;
+      if (tab) showTab(tab);
+    });
 
-  document.getElementById('lagerId').value = data.id;
-  document.getElementById('lagerNavn').value = data.navn;
-  document.getElementById('lagerAntal').value = data.antal;
-  document.getElementById('lagerPris').value = data.pris;
-  lagerAnnuller.style.display = 'inline-block';
-}
+    $("#content").addEventListener("submit", e => {
+      e.preventDefault();
+      const d = Object.fromEntries(new FormData(e.target));
+      const n = Number;
+      const actions = {
+        cash: () => db.from("cash_entries").insert({ type: d.type, description: d.description, amount: n(d.amount) }),
+        cashitem: () => db.from("cash_items").insert({ name: d.name, price: n(d.price) }),
+        customer: () => db.from("customers").insert({ name: d.name, phone: d.phone || null, note: d.note || null }),
+        stock: () => db.from("stock_items").insert({ name: d.name, quantity: n(d.quantity) }),
+        deal: () => db.from("deals").insert({ customer_id: d.customer_id, description: d.description, amount: n(d.amount), status: d.status }),
+        due: () => db.from("dues").insert({ member_id: d.member_id, month: n(d.month), year: n(d.year), amount: n(d.amount) })
+      };
+      const action = actions[e.target.dataset.form];
+      if (action) run(action());
+    });
 
-lagerAnnuller.addEventListener('click', () => {
-  lagerForm.reset();
-  document.getElementById('lagerId').value = '';
-  lagerAnnuller.style.display = 'none';
-});
+    $("#content").addEventListener("click", e => {
+      const button = e.target.closest("button");
+      if (!button) return;
+      if (button.dataset.saveCash) {
+        const id = button.dataset.saveCash;
+        run(db.from("cash_items").update({ price: Number(document.getElementById("cp-" + id).value) }).eq("id", id), "Prisen er gemt");
+      }
+      if (button.dataset.pay) {
+        run(db.from("dues").update({ paid: true }).eq("id", button.dataset.pay), "Markeret som betalt");
+      }
+    });
 
-async function sletLager(id) {
-  if (!confirm('Er du sikker på at du vil slette denne vare?')) return;
-
-  const { error } = await supabaseClient
-    .from('lager')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    alert('Fejl ved sletning: ' + error.message);
-    return;
-  }
-
-  hentLager();
-}
-
-/* =========================================================
-   KUNDER
-   Tabel: kunder (id, navn, telefon, email)
-   ========================================================= */
-const kundeForm = document.getElementById('kundeForm');
-const kunderTabel = document.getElementById('kunderTabel');
-const kundeAnnuller = document.getElementById('kundeAnnuller');
-
-async function hentKunder() {
-  const { data, error } = await supabaseClient
-    .from('kunder')
-    .select('*')
-    .order('navn', { ascending: true });
-
-  if (error) {
-    console.error('Fejl ved hentning af kunder:', error);
-    return;
-  }
-
-  kunderTabel.innerHTML = '';
-  data.forEach(kunde => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${kunde.navn}</td>
-      <td>${kunde.telefon || '-'}</td>
-      <td>${kunde.email || '-'}</td>
-      <td>
-        <button onclick="redigerKunde('${kunde.id}')">Rediger</button>
-        <button onclick="sletKunde('${kunde.id}')">Slet</button>
-      </td>
-    `;
-    kunderTabel.appendChild(row);
-  });
-
-  opdaterKundeDropdown(data);
-}
-
-kundeForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const id = document.getElementById('kundeId').value;
-  const navn = document.getElementById('kundeNavn').value;
-  const telefon = document.getElementById('kundeTelefon').value;
-  const email = document.getElementById('kundeEmail').value;
-
-  if (id) {
-    const { error } = await supabaseClient
-      .from('kunder')
-      .update({ navn, telefon, email })
-      .eq('id', id);
-
-    if (error) {
+    // Starter ved sidens åbning og ved login/logout (kaldes udenfor callbacket for at undgå låsning)
+    db.auth.onAuthStateChange((event, session) => setTimeout(() => start(session), 0));
+  </script>
+</body>
+</html>
