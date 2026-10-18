@@ -6,38 +6,49 @@
   <title>Malvagos</title>
   <style>
     * { box-sizing: border-box; }
-    body { min-height: 100vh; margin: 0; background: #f7f6f2; color: #172033; font: 16px Arial, sans-serif; }
-    input, button, select { font: inherit; padding: 10px; border: 1px solid #ccd2dc; border-radius: 7px; }
-    button { cursor: pointer; background: #174ea6; color: white; border: 0; }
-    button.secondary { background: #586579; }
+    body { min-height: 100vh; margin: 0; background: #f7f6f2; color: #172033; font: 15px Arial, sans-serif; }
+    input, button, select { font: inherit; padding: 9px 11px; border: 1px solid #e5e2dc; border-radius: 7px; background: #fff; color: inherit; }
+    button { cursor: pointer; background: #b8860b; color: #fff; border: 0; }
+    button.ghost { background: #fff; color: #172033; border: 1px solid #e5e2dc; }
+    button.danger { background: #fff; color: #b42318; border: 1px solid #e5e2dc; }
 
     #auth { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
-    .login-box { width: min(100%, 300px); padding: 14px; background: white; border: 1px solid #e8e5df; border-radius: 9px; }
-    .login-box h2 { margin: 0 0 12px; font-size: 16px; color: #b98100; }
+    .login-box { width: min(100%, 300px); padding: 14px; background: #fff; border: 1px solid #e8e5df; border-radius: 9px; }
+    .login-box h2 { margin: 0 0 12px; font-size: 16px; color: #b8860b; }
     .login-box h2 b { color: #172033; }
-    .login-box h2 span { color: #d99a16; }
     #login { display: grid; gap: 6px; }
     #login label { margin-top: 3px; color: #666; font-size: 11px; }
-    #login input { width: 100%; margin: 0; padding: 9px; border: 1px solid #e5e2dc; border-radius: 6px; font-size: 13px; }
-    #login button { width: 100%; margin-top: 2px; padding: 9px; color: #17130a; background: #bf890b; border-radius: 6px; font-size: 13px; }
+    #login input { width: 100%; font-size: 13px; }
+    #login button { width: 100%; margin-top: 4px; }
     .login-box small { display: block; margin-top: 10px; color: #777; font-size: 10px; }
 
-    .app-shell { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+    .app-shell { max-width: 1000px; margin: 0 auto; padding: 18px 16px 40px; }
     .app-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
-    .app-header h1 { margin: 0; font-size: 26px; }
+    .app-header h1 { margin: 0; font-size: 21px; color: #b8860b; }
+    .app-header h1 b { color: #172033; }
+    .app-header .row { gap: 12px; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+    nav button { background: #fff; color: #172033; border: 1px solid #e5e2dc; }
+    nav button.active { background: #b8860b; color: #fff; border-color: #b8860b; }
+
+    .card { overflow-x: auto; margin: 12px 0; padding: 16px; background: #fff; border: 1px solid #ece9e3; border-radius: 10px; }
+    .card h2 { margin: 0 0 12px; font-size: 16px; }
     .card input, .card select { margin: 4px; }
-    .card { overflow-x: auto; margin: 12px 0; padding: 18px; background: white; border-radius: 10px; box-shadow: 0 2px 8px #0001; }
-    .card h2 { margin-top: 0; font-size: 18px; }
-    nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0; }
-    nav button { background: #e4e9f1; color: #172033; }
-    nav button.active { background: #174ea6; color: white; }
-    table { width: 100%; border-collapse: collapse; background: white; }
-    th, td { padding: 10px; border-bottom: 1px solid #e4e7ec; text-align: left; }
+    .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .seg button { padding: 12px; background: #fff; color: #172033; border: 1px solid #e5e2dc; }
+    .seg button.on { background: #b8860b; color: #fff; border-color: #b8860b; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { color: #667085; font-size: 12px; }
+    th, td { padding: 9px 8px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; }
     .row { display: flex; flex-wrap: wrap; align-items: center; }
     .muted { color: #667085; }
+    .note { margin: 0 0 12px; color: #667085; font-size: 13px; }
+    .pos { color: #176b37; font-weight: 600; }
+    .neg { color: #b42318; font-weight: 600; }
     .hidden { display: none !important; }
 
-    #message { position: fixed; z-index: 2; top: 12px; left: 50%; transform: translateX(-50%); padding: 10px; white-space: pre-wrap; background: white; border-radius: 6px; box-shadow: 0 2px 8px #0002; }
+    #message { position: fixed; z-index: 2; top: 12px; left: 50%; transform: translateX(-50%); padding: 10px 14px; white-space: pre-wrap; background: #fff; border-radius: 6px; box-shadow: 0 2px 8px #0002; }
     #message:empty { display: none; }
     #message.error { color: #a11; }
     #message.success { color: #176b37; }
@@ -48,25 +59,26 @@
 
   <section id="auth">
     <div class="login-box">
-      <h2><span>◆</span> Malvagos <b>Login</b></h2>
+      <h2>◆ Malvagos <b>Login</b></h2>
       <form id="login">
         <label for="email">E-mail</label>
-        <input id="email" name="email" type="email" placeholder="E-mail" autocomplete="username" required>
+        <input id="email" type="email" placeholder="E-mail" autocomplete="username" required>
         <label for="password">Adgangskode</label>
-        <input id="password" name="password" type="password" placeholder="Adgangskode" autocomplete="current-password" required>
+        <input id="password" type="password" placeholder="Adgangskode" autocomplete="current-password" required>
         <button type="submit">Log ind</button>
       </form>
-      <small>Kun for ansatte.</small>
+      <small>Kun for medlemmer.</small>
     </div>
   </section>
 
   <section id="app" class="hidden">
     <div class="app-shell">
       <header class="app-header">
-        <h1>Malvagos</h1>
+        <h1>◆ Malvagos <b>System</b></h1>
         <div class="row">
+          <span id="stats" class="muted"></span>
           <span id="who"></span>
-          <button id="logout" class="secondary" type="button" style="margin-left:8px">Log ud</button>
+          <button id="logout" class="ghost" type="button">Log ud</button>
         </div>
       </header>
       <nav id="tabs"></nav>
@@ -80,84 +92,71 @@
     const SUPABASE_KEY = "sb_publishable_4njY-sWB9J2UTcmNmQuuDA_b5bLC4Vp";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const tabs = ["Ind/ud", "Kunder", "Lager", "Handler", "Kontingent", "Medlemmer"];
+    const tabs = ["Ind/ud", "Lager", "Medlemmer", "Kontingent", "Kontingent-historik"];
     const months = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
-    let me = null, profile = null, currentTab = "Ind/ud", startCounter = 0;
+    const now = new Date();
+    let me = null, profile = null, currentTab = "Ind/ud", startCounter = 0, histMember = "";
+    let period = { month: now.getMonth() + 1, year: now.getFullYear() };
 
-    const $ = selector => document.querySelector(selector);
-
-    const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    })[c]);
-
-    const money = value => Number(value || 0).toLocaleString("da-DK", { style: "currency", currency: "DKK" });
-    const dt = value => value ? new Date(value).toLocaleString("da-DK", { dateStyle: "short", timeStyle: "short" }) : "";
+    const $ = s => document.querySelector(s);
+    const byId = id => document.getElementById(id);
+    const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const money = v => Number(v || 0).toLocaleString("da-DK", { style: "currency", currency: "DKK", maximumFractionDigits: 0 });
+    const dt = v => v ? new Date(v).toLocaleString("da-DK", { dateStyle: "short", timeStyle: "short" }) : "–";
     const isAdmin = () => profile?.role === "admin";
     const nameOf = p => p?.full_name || p?.email || "–";
+    const getFee = () => { try { return localStorage.getItem("fee") || ""; } catch { return ""; } };
 
     function say(text = "", type = "error") {
-      const message = $("#message");
-      message.textContent = text;
-      message.className = text ? type : "";
+      const m = $("#message");
+      m.textContent = text;
+      m.className = text ? type : "";
     }
 
-    // Værdier escapes altid, undtagen objekter af formen { html: "..." }
     const cell = v => (v && v.html !== undefined) ? v.html : esc(v);
-
     function table(headers, rows) {
       if (!rows.length) return '<p class="muted">Ingen oplysninger endnu.</p>';
-      return `
-        <table>
-          <thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead>
-          <tbody>${rows.map(r => `<tr>${r.map(v => `<td>${cell(v)}</td>`).join("")}</tr>`).join("")}</tbody>
-        </table>`;
+      return `<table><thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead>
+        <tbody>${rows.map(r => `<tr>${r.map(v => `<td>${cell(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     }
+    const card = (title, body) => `<section class="card"><h2>${title}</h2>${body}</section>`;
+    const must = r => { if (r.error) throw r.error; return r.data || []; };
+    const list = (t, cols = "*", order = "created_at", asc = false) => db.from(t).select(cols).order(order, { ascending: asc });
 
-    const must = result => { if (result.error) throw result.error; return result.data || []; };
-    const list = (t, cols = "*", order = "created_at", asc = false) =>
-      db.from(t).select(cols).order(order, { ascending: asc });
+    function setStats(stock) {
+      const value = stock.reduce((s, i) => s + Number(i.quantity || 0) * Number(i.price || 0), 0);
+      $("#stats").textContent = `${stock.length} varer · lagerværdi ${money(value)}`;
+    }
 
     async function start(session) {
       const thisStart = ++startCounter;
       me = session?.user || null;
       profile = null;
-
       $("#auth").classList.toggle("hidden", !!me);
       $("#app").classList.toggle("hidden", !me);
 
       if (!me) {
-        $("#content").innerHTML = "";
-        $("#tabs").innerHTML = "";
-        $("#who").textContent = "";
+        $("#content").innerHTML = ""; $("#tabs").innerHTML = "";
+        $("#who").textContent = ""; $("#stats").textContent = "";
         say("");
         return;
       }
 
-      const { data, error } = await db.from("profiles")
-        .select("id, full_name, role").eq("id", me.id).maybeSingle();
-
+      const { data, error } = await db.from("profiles").select("id, full_name, role").eq("id", me.id).maybeSingle();
       if (thisStart !== startCounter) return;
       if (error) return say("Kunne ikke hente din profil: " + error.message);
-      if (!data) return say("Din profil blev ikke fundet. Bed administratoren kontrollere Supabase-profiltabellen.");
+      if (!data) return say("Din profil blev ikke fundet. Bed en administrator kontrollere profiltabellen i Supabase.");
 
       profile = data;
       say("");
-      $("#who").textContent = `${profile.full_name || me.email} (${isAdmin() ? "admin" : "medlem"})`;
-      $("#tabs").innerHTML = tabs.map(tab =>
-        `<button type="button" data-tab="${esc(tab)}" class="${tab === currentTab ? "active" : ""}">${esc(tab)}</button>`
-      ).join("");
-
+      $("#who").textContent = `${profile.full_name || me.email} · ${isAdmin() ? "Admin" : "Medlem"}`;
+      $("#tabs").innerHTML = tabs.map(t => `<button type="button" data-tab="${esc(t)}" class="${t === currentTab ? "active" : ""}">${esc(t)}</button>`).join("");
       await showTab(currentTab);
     }
-
-    const card = (title, body) => `<section class="card"><h2>${title}</h2>${body}</section>`;
-    const form = (name, fields, label = "Gem") =>
-      `<form data-form="${name}" class="row">${fields}<button type="submit">${label}</button></form>`;
 
     async function showTab(tab) {
       currentTab = tab;
       document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-
       const out = $("#content");
       out.innerHTML = '<section class="card">Henter…</section>';
       say("");
@@ -167,107 +166,141 @@
         let html = "";
 
         if (tab === "Ind/ud") {
-          const [entries, items] = (await Promise.all([
-            list("cash_entries"),
-            db.from("cash_items").select("*").eq("active", true).order("name")
+          const [entries, stock] = (await Promise.all([
+            db.from("cash_entries").select("*, stock_items(name)").order("created_at", { ascending: false }).limit(200),
+            list("stock_items", "*", "name", true)
           ])).map(must);
+          setStats(stock);
 
           html =
-            card("Registrér ind- eller udbetaling", form("cash", `
-              <select name="type"><option value="ind">Ind</option><option value="ud">Ud</option></select>
-              <input name="description" placeholder="Hvad drejer det sig om?" required>
-              <input name="amount" type="number" min="0.01" step="0.01" placeholder="Beløb i kr." required>`)) +
-            (admin ? card("Prisliste for Ind/ud",
-              form("cashitem", `
-                <input name="name" placeholder="Navn på ting" required>
-                <input name="price" type="number" min="0" step="0.01" placeholder="Pris" required>`, "Tilføj") +
-              items.map(i => `
+            card("Registrér ind- eller udbetaling", `
+              <form data-form="cash">
+                <div class="seg">
+                  <button type="button" class="on" data-type="ind">Ind (penge ind · −lager)</button>
+                  <button type="button" data-type="ud">Ud (penge ud · +lager)</button>
+                </div>
+                <input type="hidden" name="type" value="ind">
                 <div class="row">
-                  <span>${esc(i.name)}</span>
-                  <input id="cp-${esc(i.id)}" type="number" min="0" step="0.01" value="${esc(i.price)}">
-                  <button type="button" data-save-cash="${esc(i.id)}">Gem pris</button>
-                </div>`).join("")) : "") +
-            card("Ind- og udbetalinger", table(["Dato", "Type", "Beskrivelse", "Beløb"],
-              entries.map(e => [dt(e.created_at), e.type, e.description, money(e.amount)])));
-        }
-
-        if (tab === "Kunder") {
-          const customers = must(await list("customers"));
-          html =
-            (admin ? card("Tilføj kunde", form("customer", `
-              <input name="name" placeholder="Navn" required>
-              <input name="phone" placeholder="Telefon">
-              <input name="note" placeholder="Note">`, "Tilføj")) : "") +
-            card("Kunder", table(["Navn", "Telefon", "Note"],
-              customers.map(c => [c.name, c.phone || "–", c.note || "–"])));
+                  <select name="item_id">
+                    <option value="">Ingen vare (kun beløb)</option>
+                    ${stock.map(i => `<option value="${esc(i.id)}" data-price="${esc(i.price)}">${esc(i.name)} (lager ${esc(i.quantity)})</option>`).join("")}
+                  </select>
+                  <input name="quantity" type="number" min="1" step="1" value="1" title="Antal" style="width:90px">
+                  <input name="amount" type="number" min="0.01" step="0.01" placeholder="Beløb i kr." required>
+                  <input name="description" placeholder="Note (valgfri)">
+                  <button type="submit">Gem</button>
+                </div>
+              </form>`) +
+            card("Ind- og udbetalinger", table(["Dato", "Type", "Indhold", "Beløb"],
+              entries.map(e => [
+                dt(e.created_at),
+                { html: e.type === "ind" ? '<span class="pos">Ind</span>' : '<span class="neg">Ud</span>' },
+                [e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "", e.description].filter(Boolean).join(" – ") || "–",
+                money(e.amount)
+              ])));
         }
 
         if (tab === "Lager") {
           const stock = must(await list("stock_items", "*", "name", true));
-          html =
-            (admin ? card("Tilføj lagervare", form("stock", `
-              <input name="name" placeholder="Varenavn" required>
-              <input name="quantity" type="number" min="0" step="1" placeholder="Antal" required>`, "Tilføj")) : "") +
-            card("Lager", table(["Vare", "Antal"], stock.map(i => [i.name, i.quantity])));
-        }
+          setStats(stock);
+          const rows = stock.map(i => admin ? [
+            i.name,
+            { html: `<input id="sq-${esc(i.id)}" type="number" min="0" step="1" value="${esc(i.quantity)}" style="width:90px;margin:0">` },
+            { html: `<input id="sp-${esc(i.id)}" type="number" min="0" step="0.01" value="${esc(i.price)}" style="width:110px;margin:0">` },
+            money(Number(i.quantity || 0) * Number(i.price || 0)),
+            { html: `<button data-save-stock="${esc(i.id)}">Gem</button> <button class="danger" data-del-stock="${esc(i.id)}">Slet</button>` }
+          ] : [i.name, i.quantity, money(i.price), money(Number(i.quantity || 0) * Number(i.price || 0))]);
 
-        if (tab === "Handler") {
-          const [customers, deals] = (await Promise.all([
-            list("customers", "id, name", "name", true),
-            list("deals", "*, customers(name)")
-          ])).map(must);
           html =
-            (admin ? card("Ny handel", form("deal", `
-              <select name="customer_id" required>
-                <option value="">Vælg kunde</option>
-                ${customers.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}
-              </select>
-              <input name="description" placeholder="Beskrivelse" required>
-              <input name="amount" type="number" min="0" step="0.01" placeholder="Beløb i kr." required>
-              <select name="status">
-                <option value="open">Åben</option><option value="done">Afsluttet</option>
-              </select>`, "Tilføj")) : "") +
-            card("Handler", table(["Dato", "Kunde", "Beskrivelse", "Beløb", "Status"],
-              deals.map(d => [dt(d.created_at), d.customers?.name || "–", d.description, money(d.amount),
-                d.status === "done" ? "Afsluttet" : "Åben"])));
-        }
-
-        if (tab === "Kontingent") {
-          const [members, dues] = (await Promise.all([
-            list("profiles", "id, full_name, email", "email", true),
-            list("dues", "*, profiles(full_name, email)")
-          ])).map(must);
-          html =
-            (admin ? card("Registrér kontingent", form("due", `
-              <select name="member_id" required>
-                <option value="">Vælg medlem</option>
-                ${members.map(m => `<option value="${esc(m.id)}">${esc(nameOf(m))}</option>`).join("")}
-              </select>
-              <select name="month">
-                ${months.map((m, i) => `<option value="${i + 1}">${m}</option>`).join("")}
-              </select>
-              <input name="year" type="number" value="${new Date().getFullYear()}" required>
-              <input name="amount" type="number" min="0" step="0.01" placeholder="Beløb i kr." required>`, "Tilføj")) : "") +
-            card("Kontingent", table(["Medlem", "Måned", "År", "Beløb", "Status"],
-              dues.map(d => [nameOf(d.profiles), months[(d.month || 1) - 1], d.year ?? "–", money(d.amount),
-                d.paid ? "Betalt" : (admin
-                  ? { html: `<button type="button" data-pay="${esc(d.id)}">Markér betalt</button>` }
-                  : "Ikke betalt")])));
+            (admin ? card("Tilføj vare", `
+              <form data-form="stock" class="row">
+                <input name="name" placeholder="Varenavn" required>
+                <input name="quantity" type="number" min="0" step="1" placeholder="Antal" required>
+                <input name="price" type="number" min="0" step="0.01" placeholder="Pris pr. stk." required>
+                <button type="submit">Tilføj</button>
+              </form>`) : "") +
+            `<section class="card">
+              ${admin ? "" : '<p class="note">🔒 Kun administratorer kan redigere varer og priser.</p>'}
+              <input id="search" placeholder="🔍 Søg vare…" style="width:100%;margin:0 0 10px">
+              ${table(admin ? ["Vare", "På lager", "Pris", "Lagerværdi", ""] : ["Vare", "På lager", "Pris", "Lagerværdi"], rows)}
+            </section>`;
         }
 
         if (tab === "Medlemmer") {
           const members = must(await list("profiles", "*", "email", true));
-          html = card("Medlemmer", table(["Navn", "E-mail", "Rolle"],
-            members.map(m => [m.full_name || "–", m.email, m.role === "admin" ? "Admin" : "Medlem"])));
+          const role = m => m.role === "admin" ? "Admin" : "Medlem";
+          const rows = members.map(m => admin ? [
+            { html: `<input id="mn-${esc(m.id)}" value="${esc(m.full_name || "")}" placeholder="Navn" style="margin:0">` },
+            m.email,
+            m.id === me.id ? role(m) : { html: `<select id="mr-${esc(m.id)}" style="margin:0">
+              <option value="member"${m.role !== "admin" ? " selected" : ""}>Medlem</option>
+              <option value="admin"${m.role === "admin" ? " selected" : ""}>Admin</option></select>` },
+            { html: `<button data-save-member="${esc(m.id)}">Gem</button>` }
+          ] : [m.full_name || "–", m.email, role(m)]);
+
+          html = card("Medlemmer", table(admin ? ["Navn", "E-mail", "Rolle", ""] : ["Navn", "E-mail", "Rolle"], rows)) +
+            (admin ? '<p class="note">Nye medlemmer oprettes under Authentication → Users i Supabase og vises her automatisk.</p>' : "");
+        }
+
+        if (tab === "Kontingent") {
+          const [members, paid] = (await Promise.all([
+            list("profiles", "id, full_name, email", "email", true),
+            db.from("dues").select("*").eq("year", period.year).eq("month", period.month).eq("paid", true)
+          ])).map(must);
+          const byMember = Object.fromEntries(paid.map(d => [d.member_id, d]));
+          const total = paid.reduce((s, d) => s + Number(d.amount || 0), 0);
+
+          html =
+            card("Periode", `
+              <div class="row">
+                <select id="kmonth">${months.map((m, i) => `<option value="${i + 1}"${i + 1 === period.month ? " selected" : ""}>${m}</option>`).join("")}</select>
+                <input id="kyear" type="number" value="${period.year}" style="width:100px">
+                ${admin ? `<span class="muted" style="margin-left:8px">Kontingent pr. måned:</span>
+                  <input id="kfee" type="number" min="0" step="0.01" value="${esc(getFee())}" placeholder="kr." style="width:110px">` : ""}
+              </div>
+              <p class="muted" style="margin-bottom:0">${paid.length} af ${members.length} har betalt for ${months[period.month - 1]} ${period.year} · ${money(total)} indbetalt</p>`) +
+            card("Hvem har betalt?", table(["Medlem", "Status", "Beløb", "Betalt den"].concat(admin ? [""] : []),
+              members.map(m => {
+                const d = byMember[m.id];
+                const row = [
+                  nameOf(m),
+                  { html: d ? '<span class="pos">✔ Betalt</span>' : '<span class="neg">Ikke betalt</span>' },
+                  d ? money(d.amount) : "–",
+                  d ? dt(d.paid_at || d.created_at) : "–"
+                ];
+                if (admin) row.push({ html: d
+                  ? `<button class="ghost" data-unpay="${esc(d.id)}">Fortryd</button>`
+                  : `<button data-markpaid="${esc(m.id)}">Markér betalt</button>` });
+                return row;
+              })));
+        }
+
+        if (tab === "Kontingent-historik") {
+          let q = db.from("dues").select("*, profiles(full_name, email)").eq("paid", true)
+            .order("created_at", { ascending: false }).limit(500);
+          if (histMember) q = q.eq("member_id", histMember);
+          const [members, dues] = [must(await list("profiles", "id, full_name, email", "email", true)), must(await q)];
+          const total = dues.reduce((s, d) => s + Number(d.amount || 0), 0);
+
+          html =
+            card("Filter", `
+              <select id="hfilter">
+                <option value="">Alle medlemmer</option>
+                ${members.map(m => `<option value="${esc(m.id)}"${m.id === histMember ? " selected" : ""}>${esc(nameOf(m))}</option>`).join("")}
+              </select>
+              <p class="muted" style="margin-bottom:0">${dues.length} betalinger · ${money(total)} i alt</p>`) +
+            card("Kontingent-historik", table(["Betalt den", "Medlem", "Periode", "Beløb"],
+              dues.map(d => [dt(d.paid_at || d.created_at), nameOf(d.profiles), `${months[(d.month || 1) - 1]} ${d.year ?? ""}`, money(d.amount)])));
         }
 
         out.innerHTML = html;
       } catch (err) {
-        out.innerHTML = card("Noget gik galt", `<p>${esc(err.message || err)}</p>`);
+        out.innerHTML = card("Noget gik galt", `<p>${esc(err.message || err)}</p>
+          <p class="muted">Hvis fejlen nævner en manglende kolonne eller funktion, så kør SQL-opdateringen i Supabase.</p>`);
       }
     }
 
-    // Kør en database-handling, vis resultat og genindlæs fanen
+    // Kør en databasehandling, genindlæs fanen og vis resultatet
     async function run(query, okText = "Gemt") {
       const { error } = await query;
       if (error) return say(error.message);
@@ -278,49 +311,89 @@
     $("#login").addEventListener("submit", async e => {
       e.preventDefault();
       say("");
-      const { error } = await db.auth.signInWithPassword({
-        email: $("#email").value.trim(),
-        password: $("#password").value
-      });
+      const { error } = await db.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
       if (error) say("Login mislykkedes: " + error.message);
     });
-
     $("#logout").addEventListener("click", () => db.auth.signOut());
-
-    $("#tabs").addEventListener("click", e => {
-      const tab = e.target.dataset?.tab;
-      if (tab) showTab(tab);
-    });
+    $("#tabs").addEventListener("click", e => { const t = e.target.dataset?.tab; if (t) showTab(t); });
 
     $("#content").addEventListener("submit", e => {
       e.preventDefault();
-      const d = Object.fromEntries(new FormData(e.target));
-      const n = Number;
-      const actions = {
-        cash: () => db.from("cash_entries").insert({ type: d.type, description: d.description, amount: n(d.amount) }),
-        cashitem: () => db.from("cash_items").insert({ name: d.name, price: n(d.price) }),
-        customer: () => db.from("customers").insert({ name: d.name, phone: d.phone || null, note: d.note || null }),
-        stock: () => db.from("stock_items").insert({ name: d.name, quantity: n(d.quantity) }),
-        deal: () => db.from("deals").insert({ customer_id: d.customer_id, description: d.description, amount: n(d.amount), status: d.status }),
-        due: () => db.from("dues").insert({ member_id: d.member_id, month: n(d.month), year: n(d.year), amount: n(d.amount) })
-      };
-      const action = actions[e.target.dataset.form];
-      if (action) run(action());
+      const f = e.target, d = Object.fromEntries(new FormData(f)), n = Number;
+      if (f.dataset.form === "cash") {
+        return run(db.rpc("register_cash", {
+          p_type: d.type, p_item: d.item_id || null, p_qty: d.item_id ? n(d.quantity) : null,
+          p_amount: n(d.amount), p_desc: d.description || null
+        }));
+      }
+      if (f.dataset.form === "stock") {
+        return run(db.from("stock_items").insert({ name: d.name, quantity: n(d.quantity), price: n(d.price) }));
+      }
+    });
+
+    $("#content").addEventListener("input", e => {
+      const t = e.target, f = t.form;
+      if (f?.dataset.form === "cash" && (t.name === "item_id" || t.name === "quantity")) {
+        const price = Number(f.elements.item_id.selectedOptions[0]?.dataset.price || 0);
+        if (price) f.elements.amount.value = (price * Number(f.elements.quantity.value || 0)).toFixed(2);
+      }
+      if (t.id === "search") {
+        const q = t.value.toLowerCase();
+        document.querySelectorAll("#content tbody tr").forEach(r => r.classList.toggle("hidden", !r.textContent.toLowerCase().includes(q)));
+      }
+      if (t.id === "kfee") { try { localStorage.setItem("fee", t.value); } catch {} }
+    });
+
+    $("#content").addEventListener("change", e => {
+      const t = e.target;
+      if (t.id === "kmonth" || t.id === "kyear") {
+        period.month = Number(byId("kmonth").value);
+        const y = Number(byId("kyear").value);
+        if (y >= 2000 && y <= 2100) period.year = y;
+        showTab("Kontingent");
+      }
+      if (t.id === "hfilter") { histMember = t.value; showTab("Kontingent-historik"); }
     });
 
     $("#content").addEventListener("click", e => {
-      const button = e.target.closest("button");
-      if (!button) return;
-      if (button.dataset.saveCash) {
-        const id = button.dataset.saveCash;
-        run(db.from("cash_items").update({ price: Number(document.getElementById("cp-" + id).value) }).eq("id", id), "Prisen er gemt");
+      const b = e.target.closest("button");
+      if (!b) return;
+      const ds = b.dataset;
+
+      if (ds.type) {
+        const f = b.closest("form");
+        f.elements.type.value = ds.type;
+        f.querySelectorAll(".seg button").forEach(x => x.classList.toggle("on", x === b));
       }
-      if (button.dataset.pay) {
-        run(db.from("dues").update({ paid: true }).eq("id", button.dataset.pay), "Markeret som betalt");
+      if (ds.saveStock) {
+        run(db.from("stock_items").update({
+          quantity: Number(byId("sq-" + ds.saveStock).value),
+          price: Number(byId("sp-" + ds.saveStock).value)
+        }).eq("id", ds.saveStock));
+      }
+      if (ds.delStock && confirm("Slette varen?")) {
+        run(db.from("stock_items").delete().eq("id", ds.delStock), "Varen er slettet");
+      }
+      if (ds.saveMember) {
+        const upd = { full_name: byId("mn-" + ds.saveMember).value.trim() || null };
+        const sel = byId("mr-" + ds.saveMember);
+        if (sel) upd.role = sel.value;
+        run(db.from("profiles").update(upd).eq("id", ds.saveMember));
+      }
+      if (ds.markpaid) {
+        const feeInput = byId("kfee");
+        if (!feeInput || feeInput.value === "" || !(Number(feeInput.value) >= 0)) return say("Skriv først kontingentbeløbet øverst.");
+        run(db.from("dues").insert({
+          member_id: ds.markpaid, month: period.month, year: period.year,
+          amount: Number(feeInput.value), paid: true, paid_at: new Date().toISOString()
+        }), "Kontingent registreret");
+      }
+      if (ds.unpay && confirm("Fortryd betalingen?")) {
+        run(db.from("dues").delete().eq("id", ds.unpay), "Betalingen er fjernet");
       }
     });
 
-    // Starter ved sidens åbning og ved login/logout (kaldes udenfor callbacket for at undgå låsning)
+    // setTimeout undgår, at Supabase låser sig fast, når databasen kaldes inde i callbacket
     db.auth.onAuthStateChange((event, session) => setTimeout(() => start(session), 0));
   </script>
 </body>
