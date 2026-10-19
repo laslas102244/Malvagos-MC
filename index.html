@@ -158,6 +158,10 @@
       if (!noKasse(e) && !note) return "";
       return `<div class="muted" style="font-size:12px">${noKasse(e) ? "Ikke i kassen" : ""}${noKasse(e) && note ? " · " : ""}${note ? "Note: " + esc(note) : ""}</div>`;
     };
+    const DOMAIN = "@malvagos.app";
+    // Brugernavn → intern konto-adresse (en rigtig e-mail virker stadig)
+    const loginEmail = v => { v = v.trim().toLowerCase(); return v.includes("@") ? v : v.replace(/\s+/g, "") + DOMAIN; };
+    const userOf = e => (e || "").endsWith(DOMAIN) ? e.slice(0, -DOMAIN.length) : (e || "");
     const catOf = i => i.category || "Andet";
     const value = i => Number(i.quantity || 0) * Number(i.buy_price || 0);
     const priceOf = i => Number(cashType === "ind" ? i.sell_price : i.buy_price) || 0;
