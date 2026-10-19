@@ -147,14 +147,17 @@
     const dt = v => v ? new Date(v).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "–";
     const isAdmin = () => profile?.role === "admin";
     const nameOf = p => p?.full_name || "Uden navn";
-    const tagRe = /\s*‹af:([^›]*)›\s*$/;
+    const tagG = /\s*‹(af|note|kasse):([^›]*)›/g;
     let people = {};
-    const descText = e => e.description ? e.description.replace(tagRe, "") : (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–");
-    const byWho = e => people[e.created_by || e.user_id || e.member_id] || (e.description || "").match(tagRe)?.[1] || "–";
-    const DOMAIN = "@malvagos.app";
-    // Brugernavn → intern konto-adresse (en rigtig e-mail virker stadig)
-    const loginEmail = v => { v = v.trim().toLowerCase(); return v.includes("@") ? v : v.replace(/\s+/g, "") + DOMAIN; };
-    const userOf = e => (e || "").endsWith(DOMAIN) ? e.slice(0, -DOMAIN.length) : (e || "");
+    const tagOf = (e, k) => { const m = [...(e.description || "").matchAll(tagG)].find(x => x[1] === k); return m ? m[2] : ""; };
+    const descText = e => e.description ? e.description.replace(tagG, "").trim() : (e.quantity && e.stock_items ? `${e.quantity}× ${e.stock_items.name}` : "–");
+    const byWho = e => people[e.created_by || e.user_id || e.member_id] || tagOf(e, "af") || "–";
+    const noKasse = e => tagOf(e, "kasse") === "nej";
+    const extra = e => {
+      const note = tagOf(e, "note");
+      if (!noKasse(e) && !note) return "";
+      return `<div class="muted" style="font-size:12px">${noKasse(e) ? "Ikke i kassen" : ""}${noKasse(e) && note ? " · " : ""}${note ? "Note: " + esc(note) : ""}</div>`;
+    };
     const catOf = i => i.category || "Andet";
     const value = i => Number(i.quantity || 0) * Number(i.buy_price || 0);
     const priceOf = i => Number(cashType === "ind" ? i.sell_price : i.buy_price) || 0;
@@ -189,7 +192,7 @@
     async function allEntries() {
       let out = [], from = 0;
       while (true) {
-        const { data, error } = await db.from("cash_entries").select("type, amount").order("created_at").range(from, from + 999);
+        const { data, error } = await db.from("cash_entries").select("type, amount, description").order("created_at").range(from, from + 999);
         if (error) throw error;
         out.push(...data);
         if (data.length < 1000) break;
@@ -204,7 +207,7 @@
         kasse.missing = !!o.error;
         kasse.opening = Number(o.data?.opening || 0);
         const entries = await allEntries();
-        kasse.flow = entries.reduce((s, e) => s + (e.type === "ind" ? 1 : -1) * Number(e.amount || 0), 0);
+        kasse.flow = entries.filter(e => !noKasse(e)).reduce((s, e) => s + (e.type === "ind" ? 1 : -1) * Number(e.amount || 0), 0);
       } catch (err) { $("#kasse").textContent = " · klubkasse –"; return; }
       const bal = kasse.opening + kasse.flow;
       $("#kasse").textContent = " · klubkasse " + money(bal);
@@ -255,7 +258,7 @@
     // ---------- Ind/ud ----------
     function cashHtml(entries) {
       const cats = ["Alle", ...[...new Set(stockCache.map(catOf))].sort()];
-      const sum = t => entries.filter(e => e.type === t).reduce((s, e) => s + Number(e.amount || 0), 0);
+      const sum = t => entries.filter(e => e.type === t && !noKasse(e)).reduce((s, e) => s + Number(e.amount || 0), 0);
       const inn = sum("ind"), ud = sum("ud");
       return `
         <section class="card">
@@ -278,6 +281,8 @@
         <section class="card">
           <div class="sumline"><span>Varer</span><span id="sum">0 kr</span></div>
           <div class="pay"><b id="paylabel"></b><span id="paytotal" class="big">0 kr</span></div>
+          <label class="fl" style="margin:4px 0 8px;font-size:14px"><input type="checkbox" id="nokasse"> Tæl ikke med i klubkassen (fx ting vi selv bruger)</label>
+          <input id="cnote" class="search hidden" placeholder="Note – hvad skal det bruges til?">
           <button type="button" id="savebtn" data-save-cart></button>
         </section>` +
         statCard([["Ind i alt", money(inn), "#1a7f37"], ["Ud i alt", money(ud), "#b42318"], ["Saldo", money(inn - ud), "#b8860b"]]) +
@@ -285,7 +290,7 @@
           dt(e.created_at),
           byWho(e),
           { html: e.type === "ind" ? '<span class="pos">Ind</span>' : '<span class="neg">Ud</span>' },
-          `${descText(e)} → ${money(e.amount)}`
+          { html: esc(`${descText(e)} → ${money(e.amount)}`) + extra(e) }
         ])));
     }
 
@@ -339,10 +344,13 @@
     async function saveCart() {
       const lines = cartLines();
       if (!lines.length) return say("Kurven er tom.");
+      const skip = byId("nokasse")?.checked;
+      const note = (byId("cnote")?.value || "").replace(/[‹›]/g, "").trim();
+      if (skip && !note) return say("Skriv en note, hvorfor det ikke skal med i kassen.");
       const { error } = await db.rpc("register_cart", {
         p_type: cashType,
         p_items: lines.map(l => ({ id: l.i.id, qty: l.qty })),
-        p_desc: lines.map(l => `${l.qty}× ${l.i.name}`).join(", ") + ` ‹af:${nameOf(profile)}›`
+        p_desc: lines.map(l => `${l.qty}× ${l.i.name}`).join(", ") + (skip ? ` ‹note:${note}› ‹kasse:nej›` : "") + ` ‹af:${nameOf(profile)}›`
       });
       if (error) return say(error.message);
       cart = {};
@@ -438,7 +446,7 @@
           people = Object.fromEntries(ppl.map(p => [p.id, nameOf(p)]));
           setStats(stock);
           const shown = hType === "alle" ? entries : entries.filter(e => e.type === hType);
-          const sum = t => entries.filter(e => e.type === t).reduce((s, e) => s + Number(e.amount || 0), 0);
+          const sum = t => entries.filter(e => e.type === t && !noKasse(e)).reduce((s, e) => s + Number(e.amount || 0), 0);
           const inn = sum("ind"), ud = sum("ud");
           html =
             card("", `<div class="chips" style="margin:0;padding:0">
@@ -449,8 +457,8 @@
               dt(e.created_at),
               byWho(e),
               { html: e.type === "ind" ? '<span class="pos">Ind</span>' : '<span class="neg">Ud</span>' },
-              descText(e),
-              { html: `<span class="${e.type === "ind" ? "pos" : "neg"}">${e.type === "ind" ? "+" : "−"}${esc(money(e.amount))}</span>` }
+              { html: esc(descText(e)) + extra(e) },
+              { html: `<span class="${noKasse(e) ? "muted" : e.type === "ind" ? "pos" : "neg"}">${e.type === "ind" ? "+" : "−"}${esc(money(e.amount))}</span>` }
             ])));
         }
 
@@ -603,6 +611,7 @@
 
     $("#content").addEventListener("change", e => {
       const t = e.target;
+      if (t.id === "nokasse") { byId("cnote").classList.toggle("hidden", !t.checked); if (t.checked) byId("cnote").focus(); return; }
       if (t.dataset.qty) return setQty(t.dataset.qty, t.value);
       if (t.dataset.f) saveField(t);
       if (t.id === "kdate") {
