@@ -116,7 +116,7 @@
     const SUPABASE_KEY = "sb_publishable_4njY-sWB9J2UTcmNmQuuDA_b5bLC4Vp";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const tabs = ["Ind/ud", "Handler", "Lager", "Medlemmer", "Kontingent", "Kontingent-historik"];
+    const tabs = ["Ind/ud", "Handler", "Lager", "Medlemmer", "Kontingent", "Kontingent-historik", "Opkrævning"];
     const months = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
     const now = new Date();
     const isoLocal = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -162,6 +162,8 @@
     // Brugernavn → intern konto-adresse (en rigtig e-mail virker stadig)
     const loginEmail = v => { v = v.trim().toLowerCase(); return v.includes("@") ? v : v.replace(/\s+/g, "") + DOMAIN; };
     const userOf = e => (e || "").endsWith(DOMAIN) ? e.slice(0, -DOMAIN.length) : (e || "");
+    const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return isoLocal(d); };
+    const fmtD = iso => iso ? new Date(iso + "T12:00:00").toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric" }) : "–";
     const catOf = i => i.category || "Andet";
     const value = i => Number(i.quantity || 0) * Number(i.buy_price || 0);
     const priceOf = i => Number(cashType === "ind" ? i.sell_price : i.buy_price) || 0;
@@ -564,6 +566,37 @@
               dues.slice(0, 200).map(d => [dt(d.paid_at || d.created_at), nameOf(d.profiles), `${months[(d.month || 1) - 1]} ${d.year ?? ""}`, money(d.amount)])));
         }
 
+        if (tab === "Opkrævning") {
+          const [rows, members] = (await Promise.all([
+            list("collections", "*", "created_at", false),
+            list("profiles", "id, full_name", "email", true)
+          ])).map(must);
+          const names = members.map(nameOf);
+          const today = isoLocal(new Date());
+          const from = today, to = addDays(today, 7);
+          const status = r => r.to_date < today
+            ? '<span class="muted">Udløbet</span>'
+            : r.from_date > today ? '<span class="muted">Kommende</span>' : '<span class="pos">Aktiv</span>';
+          html =
+            card("Ny opkrævning", `
+              <div class="row">
+                <div><small class="muted">Hvem er opkrævet?</small><br>
+                  <input id="operson" list="onames" placeholder="Navn" style="width:200px"></div>
+                <div><small class="muted">Fra</small><br><input id="ofrom" type="date" value="${from}"></div>
+                <div><small class="muted">Til (en uge senere)</small><br><input id="oto" type="date" value="${to}"></div>
+                <div><small class="muted">Opkrævet af</small><br>
+                  <select id="ocoll">${members.map(m => `<option value="${esc(nameOf(m))}"${m.id === me.id ? " selected" : ""}>${esc(nameOf(m))}</option>`).join("")}</select></div>
+                <div><br><button type="button" data-save-coll>Gem opkrævning</button></div>
+              </div>
+              <datalist id="onames">${names.map(n => `<option value="${esc(n)}">`).join("")}</datalist>`) +
+            card("Opkrævninger", table(["Opkrævet", "Fra", "Til", "Status", "Opkrævet af", "Registreret"].concat(admin ? [""] : []),
+              rows.map(r => {
+                const row = [r.person, fmtD(r.from_date), fmtD(r.to_date), { html: status(r) }, r.collector, dt(r.created_at)];
+                if (admin) row.push({ html: `<button type="button" class="danger sm" data-del-coll="${esc(r.id)}">Slet</button>` });
+                return row;
+              }), true));
+        }
+
         out.innerHTML = html;
         loadBalance();
         if (tab === "Ind/ud") { drawTiles(); drawCart(); }
@@ -615,6 +648,7 @@
 
     $("#content").addEventListener("change", e => {
       const t = e.target;
+      if (t.id === "ofrom") { if (t.value) byId("oto").value = addDays(t.value, 7); return; }
       if (t.id === "nokasse") { byId("cnote").classList.toggle("hidden", !t.checked); if (t.checked) byId("cnote").focus(); return; }
       if (t.dataset.qty) return setQty(t.dataset.qty, t.value);
       if (t.dataset.f) saveField(t);
@@ -666,6 +700,16 @@
             showTab("Medlemmer").then(() => say("Brugeren er slettet", "success"));
           });
         }
+      }
+      if (ds.saveColl !== undefined) {
+        const person = byId("operson").value.trim(), f = byId("ofrom").value, t = byId("oto").value;
+        if (!person) return say("Skriv, hvem der er opkrævet.");
+        if (!f || !t) return say("Vælg både fra- og til-dato.");
+        if (t < f) return say("Til-datoen kan ikke ligge før fra-datoen.");
+        run(db.from("collections").insert({ person, from_date: f, to_date: t, collector: byId("ocoll").value }), "Opkrævning gemt");
+      }
+      if (ds.delColl && confirm("Slette opkrævningen?")) {
+        run(db.from("collections").delete().eq("id", ds.delColl), "Opkrævningen er slettet");
       }
       if (ds.delStock && confirm("Slette varen?")) {
         run(db.from("stock_items").delete().eq("id", ds.delStock), "Varen er slettet");
