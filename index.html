@@ -164,6 +164,13 @@
     const userOf = e => (e || "").endsWith(DOMAIN) ? e.slice(0, -DOMAIN.length) : (e || "");
     const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return isoLocal(d); };
     const fmtD = iso => iso ? new Date(iso + "T12:00:00").toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit", year: "numeric" }) : "–";
+    const WEEK_FEE = 65000; // opkrævning pr. uge pr. person
+    const weeksOf = (f, t) => Math.max(1, Math.ceil((new Date(t + "T12:00:00") - new Date(f + "T12:00:00")) / 86400000 / 7));
+    const amountOf = r => WEEK_FEE * weeksOf(r.from_date, r.to_date);
+    const updOAmt = () => {
+      const f = byId("ofrom")?.value, t = byId("oto")?.value;
+      if (byId("oamt") && f && t && t >= f) byId("oamt").textContent = money(WEEK_FEE * weeksOf(f, t));
+    };
     const catOf = i => i.category || "Andet";
     const value = i => Number(i.quantity || 0) * Number(i.buy_price || 0);
     const priceOf = i => Number(cashType === "ind" ? i.sell_price : i.buy_price) || 0;
@@ -584,14 +591,15 @@
                   <input id="operson" list="onames" placeholder="Navn" style="width:200px"></div>
                 <div><small class="muted">Fra</small><br><input id="ofrom" type="date" value="${from}"></div>
                 <div><small class="muted">Til (en uge senere)</small><br><input id="oto" type="date" value="${to}"></div>
+                <div><small class="muted">Beløb (${money(WEEK_FEE)} pr. uge)</small><br><b id="oamt" style="display:inline-block;padding:8px 0">${money(WEEK_FEE)}</b></div>
                 <div><small class="muted">Opkrævet af</small><br>
                   <select id="ocoll">${members.map(m => `<option value="${esc(nameOf(m))}"${m.id === me.id ? " selected" : ""}>${esc(nameOf(m))}</option>`).join("")}</select></div>
                 <div><br><button type="button" data-save-coll>Gem opkrævning</button></div>
               </div>
               <datalist id="onames">${names.map(n => `<option value="${esc(n)}">`).join("")}</datalist>`) +
-            card("Opkrævninger", table(["Opkrævet", "Fra", "Til", "Status", "Opkrævet af", "Registreret"].concat(admin ? [""] : []),
+            card("Opkrævninger", table(["Opkrævet", "Fra", "Til", "Beløb", "Status", "Opkrævet af", "Registreret"].concat(admin ? [""] : []),
               rows.map(r => {
-                const row = [r.person, fmtD(r.from_date), fmtD(r.to_date), { html: status(r) }, r.collector, dt(r.created_at)];
+                const row = [r.person, fmtD(r.from_date), fmtD(r.to_date), money(amountOf(r)), { html: status(r) }, r.collector, dt(r.created_at)];
                 if (admin) row.push({ html: `<button type="button" class="danger sm" data-del-coll="${esc(r.id)}">Slet</button>` });
                 return row;
               }), true));
@@ -648,7 +656,7 @@
 
     $("#content").addEventListener("change", e => {
       const t = e.target;
-      if (t.id === "ofrom") { if (t.value) byId("oto").value = addDays(t.value, 7); return; }
+      if (t.id === "ofrom" || t.id === "oto") { if (t.id === "ofrom" && t.value) byId("oto").value = addDays(t.value, 7); updOAmt(); return; }
       if (t.id === "nokasse") { byId("cnote").classList.toggle("hidden", !t.checked); if (t.checked) byId("cnote").focus(); return; }
       if (t.dataset.qty) return setQty(t.dataset.qty, t.value);
       if (t.dataset.f) saveField(t);
