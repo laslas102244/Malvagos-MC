@@ -200,7 +200,7 @@
 
     // ---------- Klubkasse ----------
     // Saldo = startsaldo (sat af admin) + alle indbetalinger − alle udbetalinger
-    let kasse = { opening: 0, flow: 0, coll: 0, missing: false };
+    let kasse = { opening: 0, flow: 0, missing: false };
 
     async function allEntries() {
       let out = [], from = 0;
@@ -221,20 +221,8 @@
         kasse.opening = Number(o.data?.opening || 0);
         const entries = await allEntries();
         kasse.flow = entries.filter(e => !noKasse(e)).reduce((s, e) => s + (e.type === "ind" ? 1 : -1) * Number(e.amount || 0), 0);
-        // Opkrævninger lægger deres beløb til kassen (fejler stille, hvis tabellen mangler)
-        let coll = 0, from = 0;
-        try {
-          while (true) {
-            const { data, error } = await db.from("collections").select("from_date, to_date").range(from, from + 999);
-            if (error || !data) break;
-            coll += data.reduce((s, r) => s + amountOf(r), 0);
-            if (data.length < 1000) break;
-            from += 1000;
-          }
-        } catch {}
-        kasse.coll = coll;
       } catch (err) { $("#kasse").textContent = " · klubkasse –"; return; }
-      const bal = kasse.opening + kasse.flow + kasse.coll;
+      const bal = kasse.opening + kasse.flow;
       $("#kasse").textContent = " · klubkasse " + money(bal);
       $("#kasse").style.color = bal < 0 ? "#b42318" : "#1a7f37";
       const big = byId("kassebig");
@@ -246,7 +234,7 @@
     async function setBalance() {
       const inp = byId("kset");
       if (!inp || inp.value === "" || isNaN(Number(inp.value))) return say("Skriv den nye saldo først.");
-      const opening = Number(inp.value) - kasse.flow - kasse.coll;
+      const opening = Number(inp.value) - kasse.flow;
       const { error } = await db.from("club_balance").upsert({ id: 1, opening });
       if (error) return say(error.message);
       inp.value = "";
